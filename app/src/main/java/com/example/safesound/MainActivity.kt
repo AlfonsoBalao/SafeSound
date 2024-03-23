@@ -172,38 +172,6 @@ class MainActivity : AppCompatActivity() {
 
 
 /*
-*  public static ArrayList<MusicFiles> getAllAudio(Context context){
-*
-*  ArrayList<MusicFiles> tempAudioList = new ArrayList<>();
-*  Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-*  String[] projection = {
-*                          MediaStore.Audio.Media.ALBUM,
-*                           MediaStore.Audio.Media.TITLE,
-*                           MediaStore.Audio.Media.DURATION,
-*                           MediaStore.Audio.Media.DATA, //FOR PATH.
-*                           MediaStore.Audio.Media.ARTIST
-*                           };
-*
-*  Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-*   if (cursor != null){
-*           while (cursor.moveToNext())
-*               {
-*                   String album = cursor.getString(0);
-*                   String title = cursor.getString(1);
-*                   String duration = cursor.getString(2);
-*                   String path = cursor.getString(3);
-*                   String artist = cursor.getString(4);
-*
-*                   MusicFiles musicFiles = new MusicFiles(path, title, artist, album, duration);
-*                   //take log.e for check
-*                   Log.e("Path: " + path, "Album : " + album);
-*                   tempAudioList.add(musicFiles;)
-*                   }
-*            cursor.close();
-*           }
-*           return tempAudioList;
-*
-* }
-*       ArrayList<MusicFiles> musicFiles;
+
 
 * */
