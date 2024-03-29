@@ -1,7 +1,11 @@
 plugins {
-    alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.androidApplication)
+    id("kotlin-parcelize")
+
+
 }
+
 
 android {
     namespace = "com.example.safesound"
@@ -33,9 +37,13 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding= true
+    }
 }
 
 dependencies {
+
 
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.fragment.ktx)
@@ -49,6 +57,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.glide)
+
 
 
 }

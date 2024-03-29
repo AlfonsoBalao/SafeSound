@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
             val mensaje = "Permisos concedidos: ${grantedPermissions.keys.joinToString()}"
             Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
             musicFiles = getAllAudio(this)
+            initPaginador()
         }
 
         if (deniedPermissions.isNotEmpty()) {
@@ -47,10 +48,17 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
-
     /* *********************************************************************** */
+
+
     //Almacenaremos una lista de objetos MusicFiles
-    var musicFiles: ArrayList<MusicFiles> = ArrayList()
+    private lateinit var musicFiles : ArrayList<MusicFiles>
+
+    //Función para obtener la lista musicFiles desde otro punto de la app
+    fun getMusicFiles(): ArrayList<MusicFiles> {
+        return musicFiles
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         requestMultiplePermissionsLauncher.launch(permisos)
         //Fin de la solicitud de permisos de la aplicación
 
-        initPaginador()
+        //initPaginador()
     }
 
 
@@ -137,6 +145,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    /*  Función encargada de buscar los archivos de audio en el dispositivo
+     y devolver una lista de objetos MusicFiles que representan tales archivos */
 
     fun getAllAudio(context: Context): ArrayList<MusicFiles> {
         val tempAudioList = ArrayList<MusicFiles>()
@@ -158,20 +168,16 @@ class MainActivity : AppCompatActivity() {
                 val path: String = it.getString(3)
                 val artist: String = it.getString(4)
 
-                val musicFiles = MusicFiles(path, title, artist, album, duration)
+                var musicFiles: ArrayList<MusicFiles> = arrayListOf()
+
+                /*val musicFiles = MusicFiles(path, title, artist, album, duration)*/
                 // tomar Log.e para verificar
                 Log.e("Path: $path", "Album : $album")
-                tempAudioList.add(musicFiles)
+                tempAudioList.add(MusicFiles(path, title, artist, album, duration))
             }
         }
         return tempAudioList
     }
-
+    /* **************************************************************************** */
 
 }
-
-
-/*
-
-
-* */
