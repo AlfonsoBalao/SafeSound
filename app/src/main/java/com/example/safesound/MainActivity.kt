@@ -56,9 +56,12 @@ class MainActivity : AppCompatActivity() {
 
     //Función para obtener la lista musicFiles desde otro punto de la app
     fun getMusicFiles(): ArrayList<MusicFiles> {
-        return musicFiles
+        if (::musicFiles.isInitialized) {
+            return musicFiles
+        } else {
+            return arrayListOf()
+        }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,7 +173,7 @@ class MainActivity : AppCompatActivity() {
 
                 var musicFiles: ArrayList<MusicFiles> = arrayListOf()
 
-                /*val musicFiles = MusicFiles(path, title, artist, album, duration)*/
+
                 // tomar Log.e para verificar
                 Log.e("Path: $path", "Album : $album")
                 tempAudioList.add(MusicFiles(path, title, artist, album, duration))

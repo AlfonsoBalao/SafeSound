@@ -8,8 +8,8 @@
     <color name="transparent" >#00FFFFFF</color>
     <color name="fab_color">#0269E6</color>
     <color name="fab_icon_color">#FFFFFF</color>
-
-
+    <color name="gradient_palette_start">#022CFF</color>
+    <color name="gradient_palette_end">#FF5078</color>
 
 
 </resources>
