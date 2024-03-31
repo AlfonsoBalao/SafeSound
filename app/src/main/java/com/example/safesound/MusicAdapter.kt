@@ -1,15 +1,21 @@
 package com.example.safesound
 
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.media.MediaMetadataRetriever
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
+import java.io.File
 
 class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<MusicFiles>) :
     RecyclerView.Adapter<MusicAdapter.MyViewHolder>() {
@@ -42,8 +48,39 @@ class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<
             }
             mContext.startActivity(intent)
         }
+        holder.menuMore.setOnClickListener { view ->
+            val popupMenu = PopupMenu(mContext, view)
+            popupMenu.inflate(R.menu.popup) // Simplificación del inflado del menú
+            popupMenu.show()
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.deleteFile -> {
+                        Toast.makeText(mContext, "Clicado Borrar", Toast.LENGTH_SHORT).show()
+                        deleteFile(position, view)
+                        true // Maneja el evento del clic
+                    }
+                    else -> false
+                }
+            }
+        }
+    }
 
-
+    private fun deleteFile(position: Int, view: View) {
+        val contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mFiles[position].id.toLong())
+        val deletedRows = mContext.contentResolver.delete(contentUri, null, null)
+        if (deletedRows > 0) {
+            val file: File = File(mFiles[position].path)
+            val deleted: Boolean = file.delete();
+            if (deleted){
+                mContext.contentResolver.delete(contentUri, null, null)
+                mFiles.removeAt(position)
+                notifyItemRemoved(position)
+                notifyItemRangeChanged(position, mFiles.size)
+                Snackbar.make(view, "Archivo eliminado", Snackbar.LENGTH_LONG).show()
+            }
+        } else {
+            Snackbar.make(view, "Error al eliminar el archivo", Snackbar.LENGTH_LONG).show()
+        }
     }
 
     override fun getItemCount(): Int {
@@ -53,6 +90,7 @@ class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var fileName: TextView = itemView.findViewById(R.id.music_file_name)
         var albumArt: ImageView = itemView.findViewById(R.id.music_img)
+        var menuMore: ImageView = itemView.findViewById(R.id.menuMore)
     }
 
     /*Usamos la clase de Android MediaDataRetriever para recuperar datos

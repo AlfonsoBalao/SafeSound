@@ -16,7 +16,8 @@ data class MusicFiles(
     val title: String,
     val artist: String,
     val album: String,
-    val duration: String
+    val duration: String,
+    val id: String
 ) : Parcelable
 
 

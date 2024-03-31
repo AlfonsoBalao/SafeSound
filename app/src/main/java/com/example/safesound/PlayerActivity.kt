@@ -24,6 +24,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlin.random.Random
 
 
 class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
@@ -48,6 +49,8 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
     private lateinit var playThread: Thread
     private lateinit var prevThread: Thread
     private lateinit var nextThread: Thread
+    var shuffling: Boolean = false;
+    var repeating: Boolean = false;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +84,24 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
                 // Código que se ejecuta cuando el usuario deja de tocar el SeekBar.
             }
         })
-
+        shuffleBtn.setOnClickListener{
+            if (shuffling){
+                shuffling = false
+                shuffleBtn.setImageResource(R.drawable.ic_shuffle_off)
+            } else {
+                shuffling = true
+                shuffleBtn.setImageResource(R.drawable.ic_shuffle)
+            }
+        }
+        repeatBtn.setOnClickListener{
+            if (repeating){
+                repeating = false
+                repeatBtn.setImageResource(R.drawable.ic_repeat_off)
+            } else {
+                repeating = true
+                repeatBtn.setImageResource(R.drawable.ic_repeat_on)
+            }
+        }
     }
 
     override fun onResume() {
@@ -162,51 +182,41 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
     }
 
     private fun nextBtnClicked() {
-        if (mediaPlayer.isPlaying) {
 
-            mediaPlayer.stop()
-            mediaPlayer.release()
+        mediaPlayer.stop()
+        mediaPlayer.release()
+
+       /* Si shuffling está activo, selecciona una canción aleatoria.
+         Si no y tampoco está en modo repeating -> avanza a la siguiente canción.
+         Shuffling prevalece sobre repeat */
+        if (shuffling) {
+            position = randomizer(songsList.size - 1)
+        } else if (!repeating) {
             position = (position + 1) % songsList.size
-            uri = Uri.parse(songsList[position].path)
-            mediaPlayer = MediaPlayer.create(applicationContext, uri)
-            metaData(uri)
-            songName.setText(songsList[position].title)
-            artistName.setText(songsList[position].artist)
-            seekBar.setMax(mediaPlayer.duration / 1000)
-
-            runOnUiThread {
-                if (::mediaPlayer.isInitialized) {
-                    val mCurrentPosition = mediaPlayer.currentPosition / 1000
-                    seekBar.progress = mCurrentPosition
-
-                }
-                handler.postDelayed({ updateSeekBar() }, 1000)
-            }
-            mediaPlayer.setOnCompletionListener(this)
-            playPauseBtn.setBackgroundResource(R.drawable.ic_pause)
-            mediaPlayer.start()
-        } else {
-            mediaPlayer.stop()
-            mediaPlayer.release()
-            position = (position + 1) % songsList.size
-            uri = Uri.parse(songsList[position].path)
-            mediaPlayer = MediaPlayer.create(applicationContext, uri)
-            metaData(uri)
-            songName.setText(songsList[position].title)
-            artistName.setText(songsList[position].artist)
-            seekBar.setMax(mediaPlayer.duration / 1000)
-
-            runOnUiThread {
-                if (::mediaPlayer.isInitialized) {
-                    val mCurrentPosition = mediaPlayer.currentPosition / 1000
-                    seekBar.progress = mCurrentPosition
-
-                }
-                handler.postDelayed({ updateSeekBar() }, 1000)
-            }
-            mediaPlayer.setOnCompletionListener(this)
-            playPauseBtn.setBackgroundResource(R.drawable.ic_play)
         }
+
+        loadSong()
+
+    }
+
+    private fun loadSong() {
+        uri = Uri.parse(songsList[position].path)
+        mediaPlayer = MediaPlayer.create(applicationContext, uri)
+        metaData(uri)
+        songName.setText(songsList[position].title)
+        artistName.setText(songsList[position].artist)
+        seekBar.setMax(mediaPlayer.duration / 1000)
+
+        runOnUiThread {
+            if (::mediaPlayer.isInitialized) {
+                val mCurrentPosition = mediaPlayer.currentPosition / 1000
+                seekBar.progress = mCurrentPosition
+            }
+            handler.postDelayed({ updateSeekBar() }, 1000)
+        }
+        mediaPlayer.setOnCompletionListener(this)
+        playPauseBtn.setBackgroundResource(if (mediaPlayer.isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
+        mediaPlayer.start()
     }
 
     private fun playThreadBtn() {
@@ -467,18 +477,19 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
     }
     /* *********************** Fin de animación *********************************/
 
-    override fun onCompletion(mp: MediaPlayer?){
-        nextBtnClicked()
-        if (mediaPlayer != null){
-            mediaPlayer = MediaPlayer.create(applicationContext, uri)
-            mediaPlayer.start()
-            mediaPlayer.setOnCompletionListener(this)
+    override fun onCompletion(mp: MediaPlayer?) {
+        if (repeating) {
+            mediaPlayer.start() // repite la misma canción
+        } else {
+            nextBtnClicked() // va a la siguiente canción
         }
+    }
+
+
+    private fun randomizer(i: Int): Int {
+        return Random.nextInt(i + 1)
 
     }
 }
-
-
-
 
 

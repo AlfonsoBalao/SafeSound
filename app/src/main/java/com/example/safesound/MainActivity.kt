@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -83,7 +84,7 @@ class MainActivity : AppCompatActivity() {
         requestMultiplePermissionsLauncher.launch(permisos)
         //Fin de la solicitud de permisos de la aplicación
 
-        //initPaginador()
+
     }
 
 
@@ -106,10 +107,6 @@ class MainActivity : AppCompatActivity() {
 
         private val fragments = mutableListOf<Fragment>()
         private val titulos = mutableListOf<String>()
-
-        fun getItemCount(): Int {
-            return fragments.size
-        }
 
         fun createFragment(position: Int): Fragment {
             return fragments[position]
@@ -159,7 +156,9 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.DATA, // para la ruta
-            MediaStore.Audio.Media.ARTIST
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media._ID
+
         )
 
         val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, null)
@@ -170,13 +169,14 @@ class MainActivity : AppCompatActivity() {
                 val duration: String = it.getString(2)
                 val path: String = it.getString(3)
                 val artist: String = it.getString(4)
+                val id: String = it.getString(5)
 
                 var musicFiles: ArrayList<MusicFiles> = arrayListOf()
 
 
                 // tomar Log.e para verificar
                 Log.e("Path: $path", "Album : $album")
-                tempAudioList.add(MusicFiles(path, title, artist, album, duration))
+                tempAudioList.add(MusicFiles(path, title, artist, album, duration, id))
             }
         }
         return tempAudioList
