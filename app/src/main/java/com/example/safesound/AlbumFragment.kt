@@ -5,9 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
@@ -20,6 +21,8 @@ class AlbumFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    lateinit var recyclerView: RecyclerView
+    lateinit var albumAdapter: AlbumAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +37,15 @@ class AlbumFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view:View = inflater.inflate(R.layout.fragment_album, container, false)
+        val view = inflater.inflate(R.layout.fragment_album, container, false)
+        recyclerView = view.findViewById(R.id.recyclerView)
+        recyclerView.setHasFixedSize(true) //El tamaño del elemento recyclerView no cambiará
+
+        if (((activity as? MainActivity)?.getMusicFiles()?.size ?: 0) >= 1) {
+            albumAdapter = AlbumAdapter(requireContext(), (activity as MainActivity).getMusicFiles())
+            recyclerView.adapter = albumAdapter
+            recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+        }
         return view
     }
 
