@@ -3,7 +3,6 @@ package com.example.safesound
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
@@ -182,21 +181,18 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
     }
 
     private fun nextBtnClicked() {
+        runOnUiThread {
+            mediaPlayer.stop()
+            mediaPlayer.release()
 
-        mediaPlayer.stop()
-        mediaPlayer.release()
+            if (shuffling) {
+                position = randomizer(songsList.size - 1)
+            } else if (!repeating) {
+                position = (position + 1) % songsList.size
+            }
 
-       /* Si shuffling está activo, selecciona una canción aleatoria.
-         Si no y tampoco está en modo repeating -> avanza a la siguiente canción.
-         Shuffling prevalece sobre repeat */
-        if (shuffling) {
-            position = randomizer(songsList.size - 1)
-        } else if (!repeating) {
-            position = (position + 1) % songsList.size
+            loadSong()
         }
-
-        loadSong()
-
     }
 
     private fun loadSong() {
@@ -341,7 +337,6 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
     }
 
     private fun metaData(uri: Uri) {
-
         val retriever = MediaMetadataRetriever()
         try {
             retriever.setDataSource(this, uri)
@@ -351,130 +346,70 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
             lateinit var bitmap: Bitmap
 
             if (coverArtBytes != null) {
-                /* Identificar y usar la paleta de colores recogida de la carátula para gradiente */
-                bitmap =
-                    coverArtBytes.let { BitmapFactory.decodeByteArray(coverArtBytes, 0, it.size)
-                        }
-                imageAnimation(this, coverArt, bitmap)
-                Palette.from(bitmap).generate { palette ->
-                    val swatch = palette?.dominantSwatch
-                    if (swatch != null) {
-                        val gradient: ImageView = findViewById(R.id.imageViewGradient)
-                        val mContainer: RelativeLayout = findViewById(R.id.mContainer)
-                        gradient.setBackgroundResource(R.drawable.gradient_bg)
-                        mContainer.setBackgroundResource(R.drawable.main_bg)
-
-                        val gradientDrawable = GradientDrawable(
-                            GradientDrawable.Orientation.BOTTOM_TOP,
-                            intArrayOf(swatch.rgb, 0x00000000)
-                        )
-                        gradient.background = gradientDrawable
-
-                        val gradientDrawableBg = GradientDrawable(
-                            GradientDrawable.Orientation.BOTTOM_TOP,
-                            intArrayOf(swatch.rgb, swatch.rgb)
-                        )
-
-                        mContainer.background =
-                            gradientDrawableBg
-
-                        songName.setTextColor(swatch.titleTextColor)
-                        artistName.setTextColor(swatch.bodyTextColor)
-
-                    } else {
-                        val gradient: ImageView = findViewById(R.id.imageViewGradient)
-                        val mContainer: RelativeLayout = findViewById(R.id.mContainer)
-                        gradient.setBackgroundResource(R.drawable.gradient_bg)
-                        mContainer.setBackgroundResource(R.drawable.main_bg)
-
-                        val gradientDrawable = GradientDrawable(
-                            GradientDrawable.Orientation.BOTTOM_TOP,
-                            intArrayOf(0xff000000.toInt(), 0x00000000)
-                        )
-                        gradient.background = gradientDrawable
-
-                        val gradientDrawableBg = GradientDrawable(
-                            GradientDrawable.Orientation.BOTTOM_TOP,
-                            intArrayOf(0xff000000.toInt(), 0xff000000.toInt())
-                        )
-
-                        mContainer.background = gradientDrawableBg
-                        songName.setTextColor(Color.WHITE)
-                        artistName.setTextColor(Color.DKGRAY)
-                    }
-                }
-                /* Fin del efecto gradiente */
+                bitmap = BitmapFactory.decodeByteArray(coverArtBytes, 0, coverArtBytes.size)
             } else {
-                Glide.with(this)
-                    .asBitmap()
-                    .load(R.drawable.null_cover)
-                    .into(coverArt)
+                // usa el archivo null_cover si no hay metadatos de imagen de portada
+                bitmap = BitmapFactory.decodeResource(resources, R.drawable.null_cover)
+            }
+
+            // animación exista en metadatos una imagen o sea la del archivo null_cover
+            imageAnimation(this, coverArt, bitmap)
+
+            // uso de la paleta para gradiente si existe la imagen o establecer colores predeterminados si no
+            Palette.from(bitmap).generate { palette ->
+                val swatch = palette?.dominantSwatch ?: return@generate
                 val gradient: ImageView = findViewById(R.id.imageViewGradient)
                 val mContainer: RelativeLayout = findViewById(R.id.mContainer)
-                gradient.setBackgroundResource(R.drawable.gradient_bg)
-                mContainer.setBackgroundResource(R.drawable.main_bg)
 
-                // gradiente si no hay bitmap en metadatos
-                val defaultGradientDrawable = GradientDrawable(
+                val gradientDrawable = GradientDrawable(
                     GradientDrawable.Orientation.BOTTOM_TOP,
-                    intArrayOf(0xff000000.toInt(), 0x00000000)
+                    intArrayOf(swatch.rgb, 0x00000000)
                 )
-                gradient.background = defaultGradientDrawable
+                gradient.background = gradientDrawable
 
-                // fondo predeterminado si no hay bitmap en metadatos
-                val defaultGradientDrawableBg = GradientDrawable(
+                val gradientDrawableBg = GradientDrawable(
                     GradientDrawable.Orientation.BOTTOM_TOP,
-                    intArrayOf(0xff000000.toInt(), 0xff000000.toInt())
+                    intArrayOf(swatch.rgb, swatch.rgb)
                 )
-                mContainer.background = defaultGradientDrawableBg
+                mContainer.background = gradientDrawableBg
 
-                // colores de texto por defecto
-                songName.setTextColor(Color.WHITE)
-                artistName.setTextColor(Color.DKGRAY)
-
+                songName.setTextColor(swatch.titleTextColor)
+                artistName.setTextColor(swatch.bodyTextColor)
             }
+
         } catch (e: Exception) {
-            // manejo de errores si el URI es inválido o si hay problemas al convertir la duración
             Toast.makeText(this, "Error al cargar metadatos", Toast.LENGTH_SHORT).show()
         } finally {
-            retriever.release() //  libera el MediaMetadataRetriever para evitar fugas de memoria
+            retriever.release() //libera los recursos
         }
     }
 
+
     /* Animación fade in & fade out al cambiar de canción */
     fun imageAnimation(context: Context, imageView: ImageView, bitmap: Bitmap) {
-        val animOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
-        val animIn = AnimationUtils.loadAnimation(context, android.R.anim.fade_in)
+        val animOut = AnimationUtils.loadAnimation(context, R.anim.fade_out)
+        val animIn = AnimationUtils.loadAnimation(context, R.anim.fade_in)
 
         animOut.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(animation: Animation) {
-
-            }
+            override fun onAnimationStart(animation: Animation) {}
 
             override fun onAnimationEnd(animation: Animation) {
                 Glide.with(context).load(bitmap).into(imageView)
                 animIn.setAnimationListener(object : Animation.AnimationListener {
-                    override fun onAnimationStart(animation: Animation) {
+                    override fun onAnimationStart(animation: Animation) {}
 
-                    }
+                    override fun onAnimationEnd(animation: Animation) {}
 
-                    override fun onAnimationEnd(animation: Animation) {
-
-                    }
-
-                    override fun onAnimationRepeat(animation: Animation) {
-
-                    }
+                    override fun onAnimationRepeat(animation: Animation) {}
                 })
                 imageView.startAnimation(animIn)
             }
 
-            override fun onAnimationRepeat(animation: Animation) {
-
-            }
+            override fun onAnimationRepeat(animation: Animation) {}
         })
         imageView.startAnimation(animOut)
     }
+
     /* *********************** Fin de animación *********************************/
 
     override fun onCompletion(mp: MediaPlayer?) {
