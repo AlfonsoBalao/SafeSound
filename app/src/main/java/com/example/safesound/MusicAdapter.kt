@@ -28,7 +28,7 @@ class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<
     //Carga las carátulas encontradas en los metadatos o asigna una por defecto si no existe
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.fileName.text = mFiles[position].title
-        val image: ByteArray? = getAlbumArt(mFiles[position].path)
+        val image: ByteArray? = MusicUtils.getAlbumArt(mFiles[position].path)
         if (image != null){
             Glide.with(mContext).asBitmap()  // -> sintaxis propia de la librería Glide
                 .load(image)
@@ -92,17 +92,6 @@ class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<
         var albumArt: ImageView = itemView.findViewById(R.id.music_img)
         var menuMore: ImageView = itemView.findViewById(R.id.menuMore)
     }
-
-    /*Usamos la clase de Android MediaDataRetriever para recuperar datos
-    de los archivos multimedia */
-    private fun getAlbumArt(uri: String): ByteArray? { // -> devolverá un array de bites (imagen)
-        val retriever = MediaMetadataRetriever()
-        retriever.setDataSource(uri)
-        val art = retriever.embeddedPicture
-        retriever.release() // -> liberamos recursos del objeto MediaDataRetriever
-        return art // -> devuelve los datos de la imagen / Si no existe, devuelve null.
-    }
-
 
 }
 

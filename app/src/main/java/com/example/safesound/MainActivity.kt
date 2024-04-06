@@ -2,6 +2,7 @@ package com.example.safesound
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
@@ -182,5 +183,13 @@ class MainActivity : AppCompatActivity() {
         return tempAudioList
     }
     /* **************************************************************************** */
+
+
+    fun openAlbumDetails(musicFiles: ArrayList<MusicFiles>) {
+        val intent = Intent(this, AlbumDetails::class.java).apply {
+            putExtra("albumDetails", musicFiles)
+        }
+        startActivity(intent)
+    }
 
 }

@@ -111,15 +111,34 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
     }
 
     private fun prevThreadBtn() {
-        prevThread = Thread {
-            // En Kotlin, no es necesario llamar a super.run() ya que estamos
-            // definiendo el comportamiento del hilo directamente.
 
-            prevBtn.setOnClickListener {
-                prevBtnClicked()
+        runOnUiThread {
+            prevThread = Thread {
+                // En Kotlin, no es necesario llamar a super.run() ya que estamos
+                // definiendo el comportamiento del hilo directamente.
+
+                prevBtn.setOnClickListener {
+                    prevBtnClicked()
+                }
             }
+            prevThread.start()
         }
-        prevThread.start()
+
+
+    }
+
+    private fun nextThreadBtn() {
+        runOnUiThread{
+            nextThread = Thread {
+
+                nextBtn.setOnClickListener {
+                    nextBtnClicked()
+                }
+            }
+            nextThread.start()
+        }
+
+
     }
 
     private fun prevBtnClicked() {
@@ -170,16 +189,6 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
         }
     }
 
-    private fun nextThreadBtn() {
-        nextThread = Thread {
-
-            nextBtn.setOnClickListener {
-                nextBtnClicked()
-            }
-        }
-        nextThread.start()
-    }
-
     private fun nextBtnClicked() {
         runOnUiThread {
             mediaPlayer.stop()
@@ -214,6 +223,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
         playPauseBtn.setBackgroundResource(if (mediaPlayer.isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
         mediaPlayer.start()
     }
+
 
     private fun playThreadBtn() {
         playThread = Thread {
