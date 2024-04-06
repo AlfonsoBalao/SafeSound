@@ -26,7 +26,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlin.random.Random
 
 
-class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
+class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
 
     private lateinit var songName: TextView
     private lateinit var artistName: TextView
@@ -83,8 +83,8 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
                 // Código que se ejecuta cuando el usuario deja de tocar el SeekBar.
             }
         })
-        shuffleBtn.setOnClickListener{
-            if (shuffling){
+        shuffleBtn.setOnClickListener {
+            if (shuffling) {
                 shuffling = false
                 shuffleBtn.setImageResource(R.drawable.ic_shuffle_off)
             } else {
@@ -92,8 +92,8 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
                 shuffleBtn.setImageResource(R.drawable.ic_shuffle)
             }
         }
-        repeatBtn.setOnClickListener{
-            if (repeating){
+        repeatBtn.setOnClickListener {
+            if (repeating) {
                 repeating = false
                 repeatBtn.setImageResource(R.drawable.ic_repeat_off)
             } else {
@@ -128,7 +128,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
     }
 
     private fun nextThreadBtn() {
-        runOnUiThread{
+        runOnUiThread {
             nextThread = Thread {
 
                 nextBtn.setOnClickListener {
@@ -279,15 +279,24 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
         }
     }
 
+
     private fun getIntentMethod() {
         position = intent.getIntExtra("position", -1)
-        songsList = intent.getParcelableArrayListExtra<MusicFiles>("musicFiles") ?: arrayListOf()
+        val sender = intent.getStringExtra("sender")
+
+
+        if (sender != null && sender.equals("albumDetailsAdapter")){
+            songsList = intent.getParcelableArrayListExtra<MusicFiles>("albumFiles") ?: arrayListOf()
+        }
+        else{
+            songsList = intent.getParcelableArrayListExtra<MusicFiles>("musicFiles") ?: arrayListOf()
+        }
 
         if (songsList.isNotEmpty() && position in songsList.indices) {
             playPauseBtn.setImageResource(R.drawable.ic_pause)
             val uri = Uri.parse(songsList[position].path)
 
-            // Inicializa mediaPlayer aquí si aún no se ha hecho
+            // inicia mediaPlayer aquí si aún no se ha hecho
             if (!::mediaPlayer.isInitialized) {
                 mediaPlayer = MediaPlayer()
             }
@@ -314,6 +323,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
             ).show()
         }
     }
+
 
     override fun onStop() {
         super.onStop()
@@ -372,14 +382,12 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener{
                 val mContainer: RelativeLayout = findViewById(R.id.mContainer)
 
                 val gradientDrawable = GradientDrawable(
-                    GradientDrawable.Orientation.BOTTOM_TOP,
-                    intArrayOf(swatch.rgb, 0x00000000)
+                    GradientDrawable.Orientation.BOTTOM_TOP, intArrayOf(swatch.rgb, 0x00000000)
                 )
                 gradient.background = gradientDrawable
 
                 val gradientDrawableBg = GradientDrawable(
-                    GradientDrawable.Orientation.BOTTOM_TOP,
-                    intArrayOf(swatch.rgb, swatch.rgb)
+                    GradientDrawable.Orientation.BOTTOM_TOP, intArrayOf(swatch.rgb, swatch.rgb)
                 )
                 mContainer.background = gradientDrawableBg
 

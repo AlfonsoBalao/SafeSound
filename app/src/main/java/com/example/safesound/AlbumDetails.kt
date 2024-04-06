@@ -38,12 +38,12 @@ class AlbumDetails : AppCompatActivity() {
 
         if (musicFiles != null) {
             albumSongs.addAll(musicFiles.filter { it.album == albumName })
-            Log.d("AlbumDetails", "el objeto musicFiles es NULL, amigo")
+
         }
 
         if (albumSongs.isNotEmpty()) {
             val image = MusicUtils.getAlbumArt(albumSongs[0].path)
-            Log.d("AlbumDetails", "Ruta de imagen cargada: $image")
+            Log.d("AlbumDetails", "Ruta de imagen encontrada con éxito")
             if (image != null) {
                 Glide.with(this).load(image).into(albumPhoto)
             } else {
