@@ -112,34 +112,17 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
 
     private fun prevThreadBtn() {
 
-        runOnUiThread {
-            prevThread = Thread {
-                // En Kotlin, no es necesario llamar a super.run() ya que estamos
-                // definiendo el comportamiento del hilo directamente.
-
-                prevBtn.setOnClickListener {
-                    prevBtnClicked()
-                }
-            }
-            prevThread.start()
+        prevBtn.setOnClickListener {
+            prevBtnClicked()
         }
-
-
     }
 
     private fun nextThreadBtn() {
-        runOnUiThread {
-            nextThread = Thread {
-
-                nextBtn.setOnClickListener {
-                    nextBtnClicked()
-                }
-            }
-            nextThread.start()
+        nextBtn.setOnClickListener {
+            nextBtnClicked()
         }
-
-
     }
+
 
     private fun prevBtnClicked() {
         if (mediaPlayer.isPlaying) {

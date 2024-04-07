@@ -39,13 +39,16 @@ class AlbumFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_album, container, false)
         recyclerView = view.findViewById(R.id.recyclerView)
-        recyclerView.setHasFixedSize(true) //El tamaño del elemento recyclerView no cambiará
+        recyclerView.setHasFixedSize(true) //el tamaño del recyclerView no cambiará
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
-        if (((activity as? MainActivity)?.getMusicFiles()?.size ?: 0) >= 1) {
-            albumAdapter = AlbumAdapter(requireContext(), (activity as MainActivity).getMusicFiles())
+        val uniqueAlbums = arguments?.getParcelableArrayList<MusicFiles>("uniqueAlbums")
+        val allMusicFiles = arguments?.getParcelableArrayList<MusicFiles>("allMusicFiles")
+        if (uniqueAlbums != null && allMusicFiles != null) {
+            albumAdapter = AlbumAdapter(requireContext(), uniqueAlbums, allMusicFiles)
             recyclerView.adapter = albumAdapter
-            recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         }
+
         return view
     }
 

@@ -13,7 +13,8 @@ import com.bumptech.glide.Glide
 
 class AlbumAdapter(
     private val mContext: Context,
-    private val albumFiles: ArrayList<MusicFiles>
+    private val uniqueAlbums: ArrayList<MusicFiles>,
+    private val allMusicFiles: ArrayList<MusicFiles>
 ) : RecyclerView.Adapter<AlbumAdapter.MyHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
         val view = LayoutInflater.from(mContext).inflate(R.layout.album_item, parent, false)
@@ -21,32 +22,30 @@ class AlbumAdapter(
     }
 
     override fun onBindViewHolder(holder: MyHolder, position: Int) {
-        holder.albumName.text = albumFiles[position].album
-        val image: ByteArray? = MusicUtils.getAlbumArt(albumFiles[position].path)
+        val album = uniqueAlbums[position]
+        holder.albumName.text = album.album // Usamos `album` directamente
+        val image: ByteArray? = MusicUtils.getAlbumArt(album.path) // `album.path` para obtener la imagen del álbum actual
         if (image != null) {
-            Glide.with(mContext).asBitmap()  // -> sintaxis propia de la librería Glide
+            Glide.with(mContext).asBitmap()
                 .load(image)
                 .into(holder.albumImage)
         } else {
-
             Glide.with(mContext)
                 .load(R.drawable.null_cover)
                 .into(holder.albumImage)
-
         }
         holder.itemView.setOnClickListener { v ->
+            val albumSongs = allMusicFiles.filter { it.album == album.album } // Filtra todas las canciones del álbum seleccionado
             val intent = Intent(mContext, AlbumDetails::class.java).apply {
-                putExtra("albumName", albumFiles[position].album)
-
-                putParcelableArrayListExtra("albumSongs", albumFiles)
+                putExtra("albumName", album.album)
+                putParcelableArrayListExtra("albumSongs", ArrayList(albumSongs))
             }
             mContext.startActivity(intent)
         }
-
     }
 
     override fun getItemCount(): Int {
-        return albumFiles.size
+        return uniqueAlbums.size // Usamos `uniqueAlbums.size` para el recuento de ítems
     }
 
     inner class MyHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -54,15 +53,3 @@ class AlbumAdapter(
         var albumName: TextView = itemView.findViewById(R.id.album_name)
     }
 }
-
-/*
-private fun getAlbumArt(uri: String): ByteArray? { // -> devolverá un array de bites (imagen)
-    val retriever = MediaMetadataRetriever()
-    retriever.setDataSource(uri)
-    val art = retriever.embeddedPicture
-    retriever.release() // -> liberamos recursos del objeto MediaDataRetriever
-    return art // -> devuelve los datos de la imagen / Si no existe, devuelve null.
-}
-
-
-*/

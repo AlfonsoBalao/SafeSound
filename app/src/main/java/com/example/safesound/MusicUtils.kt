@@ -18,4 +18,11 @@ object MusicUtils {
         }
     }
 
+
+ fun getUniqueAlbums(musicFiles: ArrayList<MusicFiles>): ArrayList<MusicFiles> {
+        // filtra para no repetir el mismo álbum después en el fragment
+        return musicFiles.distinctBy { it.album }.toCollection(ArrayList())
+    }
+
+
 }

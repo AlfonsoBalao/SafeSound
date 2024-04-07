@@ -25,6 +25,9 @@ import com.google.android.material.tabs.TabLayout
 
 class MainActivity : AppCompatActivity() {
 
+
+    private var albums: ArrayList<MusicFiles> = ArrayList()
+    private var duplicate: HashSet<String> = HashSet()
     /*Propiedad para los permisos, se define aquí para que se registre en los eventos, siempre antes
     de la función OnCreate()*/
 
@@ -93,15 +96,53 @@ class MainActivity : AppCompatActivity() {
     private fun initPaginador() {
         val paginador: ViewPager = findViewById(R.id.paginador)
         val tabLayout: TabLayout = findViewById(R.id.tab_layout)
-
-        //Para proporcionar fragmentos dinámicamente a un ViewPager
         val adaptador = ViewPagerAdapter(supportFragmentManager)
+
+        // Obtiene todos los archivos de música
+        val musicFiles = getAllAudio(this)
+
+        // Obtiene los álbumes únicos
+        val uniqueAlbums = getUniqueAlbums(musicFiles)
+
+        // Crea y pasa los álbumes únicos al AlbumFragment
+        val albumFragment = AlbumFragment().apply {
+            val bundle = Bundle().apply {
+                putParcelableArrayList("uniqueAlbums", albums)
+                putParcelableArrayList("allMusicFiles", getAllAudio(this@MainActivity))
+            }
+            arguments = bundle
+        }
         adaptador.addFragments(SongsFragment(), "Canciones")
-        adaptador.addFragments(AlbumFragment(), "Álbumes")
+        adaptador.addFragments(albumFragment, "Álbumes")
+
         paginador.adapter = adaptador
         tabLayout.setupWithViewPager(paginador)
     }
 
+    private fun getUniqueAlbums(musicFiles: ArrayList<MusicFiles>): ArrayList<MusicFiles> {
+        // filtra para no repetir el mismo álbum después en el fragment
+        return musicFiles.distinctBy { it.album }.toCollection(ArrayList())
+    }
+
+
+    /*private fun initPaginador() {
+        val paginador: ViewPager = findViewById(R.id.paginador)
+        val tabLayout: TabLayout = findViewById(R.id.tab_layout)
+        val adaptador = ViewPagerAdapter(supportFragmentManager)
+
+        adaptador.addFragments(SongsFragment(), "Canciones")
+
+        //Para proporcionar fragmentos dinámicamente a un ViewPager
+        val albumFragment = AlbumFragment().apply {
+            arguments = Bundle().apply {
+                putParcelableArrayList("musicFiles", musicFiles)
+            }
+        }
+        adaptador.addFragments(albumFragment, "Álbumes")
+
+        paginador.adapter = adaptador
+        tabLayout.setupWithViewPager(paginador)
+    }*/
 
     class ViewPagerAdapter(fragmentManager: FragmentManager) : PagerAdapter() {
         private val fragmentManager: FragmentManager = fragmentManager
@@ -172,24 +213,20 @@ class MainActivity : AppCompatActivity() {
                 val artist: String = it.getString(4)
                 val id: String = it.getString(5)
 
-                var musicFiles: ArrayList<MusicFiles> = arrayListOf()
+                val musicFile = MusicFiles(path, title, artist, album, duration, id)
 
-
-                // tomar Log.e para verificar
-                Log.e("Path: $path", "Album : $album")
-                tempAudioList.add(MusicFiles(path, title, artist, album, duration, id))
+                if (!duplicate.contains(album)) {
+                    albums.add(musicFile)
+                    duplicate.add(album)
+                }
+                // añadimos todos los archivos a tempAudioList también
+                tempAudioList.add(musicFile)
+                //tempAudioList.add(MusicFiles(path, title, artist, album, duration, id))
             }
         }
         return tempAudioList
     }
     /* **************************************************************************** */
 
-
-    fun openAlbumDetails(musicFiles: ArrayList<MusicFiles>) {
-        val intent = Intent(this, AlbumDetails::class.java).apply {
-            putExtra("albumDetails", musicFiles)
-        }
-        startActivity(intent)
-    }
 
 }
