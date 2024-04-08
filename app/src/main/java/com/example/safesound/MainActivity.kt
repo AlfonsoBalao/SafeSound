@@ -3,6 +3,7 @@ package com.example.safesound
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
@@ -34,6 +35,9 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     //Para la barra de búsqueda
     private lateinit var songsFragment: SongsFragment
+
+    //Para el orden en el menú búsqueda
+    private val preferences: String ="SortOrder"
 
 
     /*Propiedad para los permisos que se define aquí para que se registre en los eventos,
@@ -183,9 +187,17 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     /*  Función encargada de buscar los archivos de audio en el dispositivo
      y devolver una lista de objetos MusicFiles que representan tales archivos */
 
-    fun getAllAudio(context: Context): ArrayList<MusicFiles> {
+    fun getAllAudio(context: Context, sortOrder: String? = null): ArrayList<MusicFiles> {
         val tempAudioList = ArrayList<MusicFiles>()
+
+        val order = when (sortOrder) {
+            "sortByName" -> MediaStore.MediaColumns.DISPLAY_NAME + " ASC"
+            "sortByDate" -> MediaStore.MediaColumns.DATE_ADDED + " ASC"
+            "sortBySize" -> MediaStore.MediaColumns.SIZE + " DESC"
+            else -> "${MediaStore.MediaColumns.DISPLAY_NAME} ASC"  // Valor por defecto si sortOrder no coincide
+        }
         val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+
         val projection = arrayOf(
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.TITLE,
@@ -196,7 +208,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
         )
 
-        val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, null)
+       val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, order)
         cursor?.use {
             while (it.moveToNext()) {
                 val album: String = it.getString(0)
@@ -222,11 +234,6 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     /* **************************************************************************** */
 
 
-    override fun onResume() {
-        super.onResume()
-        // Esto fuerza a que se vuelva a crear el menú, incluido el SearchView.
-        invalidateOptionsMenu()
-    }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.search, menu)
         val searchItem = menu?.findItem(R.id.search_option)
@@ -267,4 +274,29 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     interface MusicUpdateListener {
         fun onMusicListUpdated(newList: ArrayList<MusicFiles>)
     }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val sortingValue = when (item.itemId) {
+            R.id.by_name -> "sortByName"
+            R.id.by_date -> "sortByDate"
+            R.id.by_size -> "sortBySize"
+            else -> return super.onOptionsItemSelected(item)
+        }
+
+        val editor: SharedPreferences.Editor = getSharedPreferences(preferences, MODE_PRIVATE).edit()
+        editor.putString("sorting", sortingValue)
+        editor.apply()
+        updateSongListByOrder()
+
+        return true
+    }
+
+    fun updateSongListByOrder() {
+        val sharedPreferences = getSharedPreferences(preferences, Context.MODE_PRIVATE)
+        val sortOrder = sharedPreferences.getString("sorting", "sortByName")
+        val updatedMusicFiles = getAllAudio(this, sortOrder)
+        songsFragment.onMusicListUpdated(updatedMusicFiles)
+    }
+
 }

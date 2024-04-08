@@ -59,7 +59,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.glide)
-
-
+    /*debugImplementation ("com.squareup.leakcanary:leakcanary-android:2.13")*/
 
 }
