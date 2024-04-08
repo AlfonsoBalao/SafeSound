@@ -4,12 +4,31 @@
     <color name="white">#FFFFFFFF</color>
     <color name="design_default_color_primary_dark">#151515</color>
     <color name="colorPrimaryDark">#000000</color>
-    <color name="design_default_color_primary" >#151515</color>
-    <color name="transparent" >#00FFFFFF</color>
+    <color name="design_default_color_primary">#151515</color>
+    <color name="transparent">#00FFFFFF</color>
     <color name="fab_color">#0269E6</color>
     <color name="fab_icon_color">#FFFFFF</color>
     <color name="gradient_palette_start">#022CFF</color>
     <color name="gradient_palette_end">#FF5078</color>
-
-
+    <!-- Colores adicionales -->
+    <color name="background_light">#F4F4F4</color>
+    <color name="text_color_primary">#212121</color>
+    <color name="text_color_secondary">#727272</color>
+    <color name="accent">#4CAF50</color>
+    <color name="accent_light">#C8E6C9</color>
+    <color name="divider">#BDBDBD</color>
+    <color name="error">#B00020</color>
+    <color name="warning">#FFA900</color>
+    <color name="success">#4CAF50</color>
+    <color name="info">#2196F3</color>
+    <color name="overlay_dark">#66000000</color>
+    <color name="overlay_light">#66FFFFFF</color>
+    <color name="button_background">#E0E0E0</color>
+    <color name="button_text">#FFFFFF</color>
+    <color name="hint_color">#9E9E9E</color>
+    <color name="input_background">#FFFFFF</color>
+    <color name="input_border">#CCCCCC</color>
+    <color name="inactive">#9E9E9E</color>
+    <color name="active">#FF5722</color>
+    <color name="shadow">#40000000</color>
 </resources>

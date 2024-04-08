@@ -1,6 +1,7 @@
 package com.example.safesound
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [SongsFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class SongsFragment : Fragment() {
+class SongsFragment : Fragment(), MainActivity.MusicUpdateListener {
 
     // TODO: iniciar las propiedades más adelante
     lateinit var recyclerView: RecyclerView
@@ -38,7 +39,7 @@ class SongsFragment : Fragment() {
 
     }
 
-    override fun onCreateView(
+   /* override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
@@ -48,13 +49,39 @@ class SongsFragment : Fragment() {
         recyclerView.setHasFixedSize(true) //El tamaño del elemento recyclerView no cambiará
 
         if (((activity as? MainActivity)?.getMusicFiles()?.size ?: 0) >= 1) {
-            musicAdapter = MusicAdapter(requireContext(), (activity as MainActivity).getMusicFiles())
+            musicAdapter =
+                MusicAdapter(requireContext(), (activity as MainActivity).getMusicFiles())
             recyclerView.adapter = musicAdapter
-            recyclerView.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+            recyclerView.layoutManager =
+                LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         }
         return view
     }
+*/
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // inflamos el layout para este fragmento
+        val view = inflater.inflate(R.layout.fragment_songs, container, false)
+        recyclerView = view.findViewById(R.id.recyclerView)
+        recyclerView.setHasFixedSize(true)
+
+
+        musicAdapter = MusicAdapter(requireContext(), arrayListOf())
+
+        recyclerView.adapter = musicAdapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+
+        (activity as? MainActivity)?.getMusicFiles()?.let { musicFiles ->
+            if (musicFiles.isNotEmpty()) {
+                musicAdapter.updateList(musicFiles)
+            }
+        }
+
+        return view
+    }
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -73,6 +100,13 @@ class SongsFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    override fun onMusicListUpdated(newList: ArrayList<MusicFiles>) {
+        if (::musicAdapter.isInitialized) {
+            musicAdapter.updateList(newList)
+            Log.d("SongsFragment", "onMusicListUpdated con nueva lista de tamaño: ${newList.size}")
+        }
     }
 }
 

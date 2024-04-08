@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -93,8 +94,15 @@ class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<
         var menuMore: ImageView = itemView.findViewById(R.id.menuMore)
     }
 
-}
 
+    fun updateList(musicFilesArrayList: ArrayList<MusicFiles>) {
+        mFiles.clear()
+        mFiles.addAll(musicFilesArrayList)
+        notifyDataSetChanged()
+        Log.d("MusicAdapter", "Ha llegado al método UpdateList del MusicAdapter")
+    }
+
+}
 
 
 

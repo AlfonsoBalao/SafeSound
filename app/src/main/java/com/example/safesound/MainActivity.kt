@@ -8,8 +8,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,15 +24,20 @@ import androidx.fragment.app.FragmentManager
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
+import androidx.appcompat.widget.SearchView
 
+class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
-class MainActivity : AppCompatActivity() {
-
-
+    //Para que sólo lance una carátula en el fragment Álbumes
     private var albums: ArrayList<MusicFiles> = ArrayList()
     private var duplicate: HashSet<String> = HashSet()
-    /*Propiedad para los permisos, se define aquí para que se registre en los eventos, siempre antes
-    de la función OnCreate()*/
+
+    //Para la barra de búsqueda
+    private lateinit var songsFragment: SongsFragment
+
+
+    /*Propiedad para los permisos que se define aquí para que se registre en los eventos,
+    siempre antes de la función OnCreate()*/
 
     private val requestMultiplePermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -56,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
 
     //Almacenaremos una lista de objetos MusicFiles
-    private lateinit var musicFiles : ArrayList<MusicFiles>
+    private lateinit var musicFiles: ArrayList<MusicFiles>
 
     //Función para obtener la lista musicFiles desde otro punto de la app
     fun getMusicFiles(): ArrayList<MusicFiles> {
@@ -98,6 +106,9 @@ class MainActivity : AppCompatActivity() {
         val tabLayout: TabLayout = findViewById(R.id.tab_layout)
         val adaptador = ViewPagerAdapter(supportFragmentManager)
 
+        //Para la lista de la barra de búsqueda, instanciamos el fragmento
+        songsFragment = SongsFragment()
+
         // Obtiene todos los archivos de música
         val musicFiles = getAllAudio(this)
 
@@ -112,7 +123,7 @@ class MainActivity : AppCompatActivity() {
             }
             arguments = bundle
         }
-        adaptador.addFragments(SongsFragment(), "Canciones")
+        adaptador.addFragments(songsFragment, "Canciones")
         adaptador.addFragments(albumFragment, "Álbumes")
 
         paginador.adapter = adaptador
@@ -125,24 +136,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    /*private fun initPaginador() {
-        val paginador: ViewPager = findViewById(R.id.paginador)
-        val tabLayout: TabLayout = findViewById(R.id.tab_layout)
-        val adaptador = ViewPagerAdapter(supportFragmentManager)
-
-        adaptador.addFragments(SongsFragment(), "Canciones")
-
-        //Para proporcionar fragmentos dinámicamente a un ViewPager
-        val albumFragment = AlbumFragment().apply {
-            arguments = Bundle().apply {
-                putParcelableArrayList("musicFiles", musicFiles)
-            }
-        }
-        adaptador.addFragments(albumFragment, "Álbumes")
-
-        paginador.adapter = adaptador
-        tabLayout.setupWithViewPager(paginador)
-    }*/
 
     class ViewPagerAdapter(fragmentManager: FragmentManager) : PagerAdapter() {
         private val fragmentManager: FragmentManager = fragmentManager
@@ -229,4 +222,49 @@ class MainActivity : AppCompatActivity() {
     /* **************************************************************************** */
 
 
+    override fun onResume() {
+        super.onResume()
+        // Esto fuerza a que se vuelva a crear el menú, incluido el SearchView.
+        invalidateOptionsMenu()
+    }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.search, menu)
+        val searchItem = menu?.findItem(R.id.search_option)
+        val searchView = searchItem?.actionView as? SearchView
+        searchView?.setOnQueryTextListener(this)
+        Log.d("MainActivity", "onCreateOptionsMenu: Listener configurado en onCreateOptionsMenu")
+
+        searchView?.requestFocus()
+
+        searchView?.onActionViewExpanded()
+        return true
+    }
+
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        Log.d("MAINACTIVITY", "ONQUERYTEXTSUBMIT FUNCIONANDO")
+        TODO("Not yet implemented")
+
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        val userInput = newText?.lowercase() ?: ""
+        Log.d("SearchTest", "Texto de búsqueda: $newText")
+        val myFiles = ArrayList<MusicFiles>()
+        musicFiles.forEach { song ->
+            if (song.title.lowercase().contains(userInput)) {
+                myFiles.add(song)
+            }
+        }
+
+        if (this::songsFragment.isInitialized) {
+            songsFragment.onMusicListUpdated(myFiles)
+        }
+        Log.d("MainActivity", "onQueryTextChange llamado con el texto: $newText")
+
+        return true
+    }
+    interface MusicUpdateListener {
+        fun onMusicListUpdated(newList: ArrayList<MusicFiles>)
+    }
 }
