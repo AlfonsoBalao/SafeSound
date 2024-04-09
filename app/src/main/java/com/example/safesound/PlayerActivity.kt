@@ -1,6 +1,9 @@
 package com.example.safesound
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.GradientDrawable
@@ -9,6 +12,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.IBinder
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -26,7 +30,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlin.random.Random
 
 
-class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
+class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, ActionPlaying, ServiceConnection {
 
     private lateinit var songName: TextView
     private lateinit var artistName: TextView
@@ -50,6 +54,8 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
     private lateinit var nextThread: Thread
     var shuffling: Boolean = false;
     var repeating: Boolean = false;
+    private var musicService: MusicService? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,6 +110,9 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
     }
 
     override fun onResume() {
+        val intent: Intent = Intent(this, MusicService::class.java)
+        bindService(intent, this, Context.BIND_AUTO_CREATE)
+
         playThreadBtn()
         nextThreadBtn()
         prevThreadBtn()
@@ -123,7 +132,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         }
     }
 
-    private fun prevBtnClicked() {
+    override fun prevBtnClicked() {
         if (mediaPlayer.isPlaying) {
 
             mediaPlayer.stop()
@@ -171,7 +180,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         }
     }
 
-    private fun nextBtnClicked() {
+    override fun nextBtnClicked() {
         runOnUiThread {
             mediaPlayer.stop()
             mediaPlayer.release()
@@ -218,7 +227,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         playThread.start()
     }
 
-    private fun playPauseBtnClicked() {
+    override fun playPauseBtnClicked() {
         if (mediaPlayer.isPlaying) {
 
             playPauseBtn.setImageResource(R.drawable.ic_play)
@@ -421,6 +430,23 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
     private fun randomizer(i: Int): Int {
         return Random.nextInt(i + 1)
 
+    }
+
+    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        val myBinder: MusicService.MyBinder = service as MusicService.MyBinder
+        musicService = myBinder.getService()
+
+        Toast.makeText(this, "Conectado " + musicService, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+        musicService = null
+    }
+
+
+    override fun onPause(): Unit {
+        super.onPause()
+        unbindService(this)
     }
 }
 
