@@ -123,7 +123,6 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         }
     }
 
-
     private fun prevBtnClicked() {
         if (mediaPlayer.isPlaying) {
 
@@ -207,7 +206,6 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         mediaPlayer.start()
     }
 
-
     private fun playThreadBtn() {
         playThread = Thread {
             // En Kotlin, no es necesario llamar a super.run() ya que estamos
@@ -262,7 +260,6 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         }
     }
 
-
     private fun getIntentMethod() {
         position = intent.getIntExtra("position", -1)
         val sender = intent.getStringExtra("sender")
@@ -306,7 +303,6 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
             ).show()
         }
     }
-
 
     override fun onStop() {
         super.onStop()
