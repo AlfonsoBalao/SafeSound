@@ -277,20 +277,30 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val sortingValue = when (item.itemId) {
-            R.id.by_name -> "sortByName"
-            R.id.by_date -> "sortByDate"
-            R.id.by_size -> "sortBySize"
-            else -> return super.onOptionsItemSelected(item)
+        when (item.itemId) {
+            R.id.by_name, R.id.by_date, R.id.by_size -> {
+                val sortingValue = when (item.itemId) {
+                    R.id.by_name -> "sortByName"
+                    R.id.by_date -> "sortByDate"
+                    R.id.by_size -> "sortBySize"
+                    else -> ""
+                }
+
+                val editor: SharedPreferences.Editor = getSharedPreferences(preferences, MODE_PRIVATE).edit()
+                editor.putString("sorting", sortingValue)
+                editor.apply()
+                updateSongListByOrder()
+                return true
+            }
+            R.id.list_icon -> {
+                val intent = Intent(this, PlayListActivity::class.java)
+                startActivity(intent)
+                return true
+            }
         }
-
-        val editor: SharedPreferences.Editor = getSharedPreferences(preferences, MODE_PRIVATE).edit()
-        editor.putString("sorting", sortingValue)
-        editor.apply()
-        updateSongListByOrder()
-
-        return true
+        return super.onOptionsItemSelected(item)
     }
+
 
     fun updateSongListByOrder() {
         val sharedPreferences = getSharedPreferences(preferences, Context.MODE_PRIVATE)
@@ -298,5 +308,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         val updatedMusicFiles = getAllAudio(this, sortOrder)
         songsFragment.onMusicListUpdated(updatedMusicFiles)
     }
+
+
 
 }

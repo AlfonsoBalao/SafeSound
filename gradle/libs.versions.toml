@@ -1,7 +1,7 @@
 [versions]
 agp = "8.3.1"
 fragmentKtx = "1.6.2"
-kotlin = "1.9.0"
+kotlin = "1.9.23"
 coreKtx = "1.12.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -13,8 +13,9 @@ activity = "1.8.2"
 constraintlayout = "2.1.4"
 viewpager2 = "1.0.0"
 glide = "5.0.0-rc01"
-paletteKtx = "1.0.0"
-
+palette = "1.0.0"
+room = "2.6.1"
+ksp = "1.9.23-1.0.20"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,7 +31,11 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
-androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
+
+palette = { module = "androidx.palette:palette", version.ref = "palette" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 
 
 
@@ -39,7 +44,7 @@ androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", versi
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 
 
