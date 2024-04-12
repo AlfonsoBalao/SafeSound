@@ -1,0 +1,35 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/synthwave_background"
+    tools:context=".DisplayListActivity">
+
+    <TextView
+        android:id="@+id/PlaylistTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="LISTAS DE REPRODUCCIÓN"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-light"
+        android:shadowColor="#FF0000"
+        android:shadowDx="4"
+        android:shadowDy="4"
+        android:shadowRadius="5"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="16dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/playlistsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+</LinearLayout>

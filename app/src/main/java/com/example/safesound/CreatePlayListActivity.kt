@@ -1,35 +1,50 @@
 package com.example.safesound
-
+import android.content.Intent
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import android.os.Bundle
 import android.provider.MediaStore
+import android.widget.Button
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 
 class CreatePlayListActivity : AppCompatActivity() {
 
+    private var playlistId: Int? = null
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var playlistAdapter: PlaylistAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_create_play_list)
 
-        val musicFiles = loadMusicFiles()
-        setupRecyclerView(musicFiles)
+        intent.extras?.let {
+            playlistId = it.getInt("PLAYLIST_ID", -1).takeIf { it != -1 }
+            val playlistName = it.getString("PLAYLIST_NAME", "")
+            val songsJson = it.getString("SONGS_IDS_JSON", "[]")
+            val type = object : TypeToken<List<String>>() {}.type
+            val selectedSongsIds: List<String> = Gson().fromJson(songsJson, type)
 
-    }
+            findViewById<EditText>(R.id.playlistName).setText(playlistName)
 
-    private fun initSongsFragment() {
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
 
-        // Instanciar SongsFragment
-        val songsFragment = SongsFragment()
+            val musicFiles = loadMusicFiles()
+            setupRecyclerView(musicFiles)
+            playlistAdapter.setSelectedSongs(selectedSongsIds)
+        }
+            val addButton = findViewById<Button>(R.id.addSongsButton)
+            addButton.setOnClickListener {
+                savePlaylist()
 
-        // Reemplazar el contenedor en el layout con el SongsFragment
-        fragmentTransaction.replace(R.id.songsRecyclerView, songsFragment)
-        fragmentTransaction.commit()
+
+        }
     }
 
 
@@ -69,16 +84,72 @@ class CreatePlayListActivity : AppCompatActivity() {
     }
 
 
-    private fun setupRecyclerView(musicFiles: List<MusicFiles>) {
-        val recyclerView = findViewById<RecyclerView>(R.id.songsRecyclerView) // Asegúrate de que este ID coincida con tu layout XML.
 
-        val adapter = PlaylistAdapter(musicFiles) { musicFile, isChecked ->
+    private fun setupRecyclerView(musicFiles: List<MusicFiles>) {
+        recyclerView = findViewById<RecyclerView>(R.id.songsRecyclerView)
+
+        playlistAdapter= PlaylistAdapter(musicFiles) { musicFile, isChecked ->
             // Aquí manejas la selección de una canción, por ejemplo, actualizando una lista de seleccionados.
         }
-        recyclerView.adapter = adapter
+        recyclerView.adapter = playlistAdapter
     }
 
 
+
+    /*private fun savePlaylist() {
+        val playlistNameEditText = findViewById<EditText>(R.id.playlistName)
+        val playlistName = playlistNameEditText.text.toString()
+
+        if (playlistName.isNotEmpty()) {
+            val selectedSongsIds = (recyclerView.adapter as PlaylistAdapter).selectedSongsId
+            val songCount = selectedSongsIds.size
+            val songIdsJson = Gson().toJson(selectedSongsIds)
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                val db = AppDatabase.getInstance(applicationContext)
+                if (playlistId == null) {
+                    // Crear nueva lista
+                    val playlist = PlayListEntity(name = playlistName, songs = songIdsJson, songCount = songCount)
+                    db.playlistDao().insertPlaylist(playlist)
+                } else {
+                    // Actualizar lista existente
+                    val playlist = PlayListEntity(id = playlistId!!, name = playlistName, songs = songIdsJson, songCount = songCount)
+                    db.playlistDao().updatePlaylist(playlist)
+                }
+                launch(Dispatchers.Main) {
+                    finish()  // Cerrar esta actividad y volver a la anterior
+                }
+            }
+        }
+    }*/
+
+
+    private fun savePlaylist() {
+        val playlistNameEditText = findViewById<EditText>(R.id.playlistName)
+        val playlistName = playlistNameEditText.text.toString()
+
+        if (playlistName.isNotEmpty()) {
+            val selectedSongsIds = (recyclerView.adapter as PlaylistAdapter).selectedSongsId
+            val songCount = selectedSongsIds.size
+            val songIdsJson = Gson().toJson(selectedSongsIds)
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                val db = AppDatabase.getInstance(applicationContext)
+                if (playlistId == null) {
+                    // Crear nueva lista
+                    val playlist = PlayListEntity(name = playlistName, songs = songIdsJson, songCount = songCount)
+                    db.playlistDao().insertPlaylist(playlist)
+                } else {
+                    // Actualizar lista existente
+                    val playlist = PlayListEntity(id = playlistId!!, name = playlistName, songs = songIdsJson, songCount = songCount)
+                    db.playlistDao().updatePlaylist(playlist)
+                }
+                launch(Dispatchers.Main) {
+                    finish()  // Cerrar esta actividad y volver a la anterior
+                }
+            }
+        }
+    }
 }
 
 

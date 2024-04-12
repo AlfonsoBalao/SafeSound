@@ -20,8 +20,15 @@ class PlayListActivity : AppCompatActivity() {
             insets
         }
 
+        val btnMyLists = findViewById<Button>(R.id.btnMyLists)
         val btnCreateList = findViewById<Button>(R.id.btnCreateList)
 
+
+        btnMyLists.setOnClickListener {
+            // Aquí se inicia la actividad DisplayListActivity
+            val intent = Intent(this, DisplayListActivity::class.java)
+            startActivity(intent)
+        }
 
         btnCreateList.setOnClickListener {
 

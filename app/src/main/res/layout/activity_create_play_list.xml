@@ -20,7 +20,7 @@
         android:id="@+id/addSongsButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Añadir canciones" />
+        android:text="Añadir canciones y guardar lista" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/songsRecyclerView"

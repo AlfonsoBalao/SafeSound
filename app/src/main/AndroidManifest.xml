@@ -19,6 +19,9 @@
         android:theme="@style/Theme.SafeSound"
         tools:targetApi="31">
         <activity
+            android:name=".DisplayListActivity"
+            android:exported="false" />
+        <activity
             android:name=".CreatePlayListActivity"
             android:exported="false" />
         <activity
