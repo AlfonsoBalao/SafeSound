@@ -28,6 +28,9 @@
             android:name=".PlayListActivity"
             android:exported="false" />
         <activity
+            android:name=".PlayListPlayerActivity"
+            android:exported="false" />
+        <activity
             android:name=".AlbumDetails"
             android:exported="false" />
         <activity

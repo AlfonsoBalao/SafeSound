@@ -1,5 +1,6 @@
 package com.example.safesound
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -30,8 +31,17 @@ class DisplayListActivity : AppCompatActivity() {
         }
     }
 
+    private fun playPlaylist(playlist: PlayListEntity) {
+        val intent = Intent(this, PlayListPlayerActivity::class.java).apply {
+            putExtra("PLAYLIST_ID", playlist.id)
+            putExtra("PLAYLIST_NAME", playlist.name)
+
+        }
+        startActivity(intent)
+    }
+
     private fun setupRecyclerView(playlists: MutableList<PlayListEntity>) {
-        playlistAdapter = DisplayListAdapter(playlists, this::editPlaylist, this::deletePlaylist)
+        playlistAdapter = DisplayListAdapter(playlists, this::editPlaylist, this::deletePlaylist, this::playPlaylist)
         recyclerView.adapter = playlistAdapter
     }
 

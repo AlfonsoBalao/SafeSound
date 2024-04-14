@@ -11,12 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 class DisplayListAdapter(
     private val playlists: MutableList<PlayListEntity>,
     private val onEdit: (PlayListEntity) -> Unit,
-    private val onDelete: (PlayListEntity) -> Unit
+    private val onDelete: (PlayListEntity) -> Unit,
+    private val onPlaylistSelected: (PlayListEntity) -> Unit
 ) : RecyclerView.Adapter<DisplayListAdapter.PlaylistViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.displaylist_item, parent, false)
-        return PlaylistViewHolder(view, onEdit, onDelete)
+        return PlaylistViewHolder(view, onEdit, onDelete, onPlaylistSelected)
     }
 
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
@@ -28,12 +29,14 @@ class DisplayListAdapter(
     class PlaylistViewHolder(
         itemView: View,
         private val onEdit: (PlayListEntity) -> Unit,
-        private val onDelete: (PlayListEntity) -> Unit
+        private val onDelete: (PlayListEntity) -> Unit,
+        private val onPlaylistSelected: (PlayListEntity) -> Unit
     ) : RecyclerView.ViewHolder(itemView) {
         private val nameTextView: TextView = itemView.findViewById(R.id.playlistName)
         private val countTextView: TextView = itemView.findViewById(R.id.songCount)
         private val editButton: Button = itemView.findViewById(R.id.editButton)
         private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
+
 
         fun bind(playlist: PlayListEntity) {
             nameTextView.text = playlist.name
@@ -48,6 +51,9 @@ class DisplayListAdapter(
                 itemView.context.startActivity(intent)
             }
             deleteButton.setOnClickListener { onDelete(playlist) }
+            itemView.setOnClickListener { onPlaylistSelected(playlist)
+            }
+
         }
     }
 }
