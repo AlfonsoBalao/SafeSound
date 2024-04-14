@@ -43,6 +43,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="leakcanary.internal.activity.LeakActivity" />
+
+
         <service
             android:name=".MusicService"
             android:enabled="true" />
