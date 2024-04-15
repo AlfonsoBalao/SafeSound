@@ -25,16 +25,19 @@ class PlayListActivity : AppCompatActivity() {
 
 
         btnMyLists.setOnClickListener {
-            // Aquí se inicia la actividad DisplayListActivity
+
             val intent = Intent(this, DisplayListActivity::class.java)
             startActivity(intent)
         }
 
-        btnCreateList.setOnClickListener {
 
+        btnCreateList.setOnClickListener {
             val intent = Intent(this, CreatePlayListActivity::class.java)
+            intent.putExtra("PLAYLIST_NAME", "Nueva lista")
+            intent.putExtra("SONGS_IDS_JSON", "[]")
             startActivity(intent)
         }
+
     }
 
 }

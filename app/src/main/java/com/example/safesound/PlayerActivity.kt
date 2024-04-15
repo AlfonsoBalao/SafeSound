@@ -448,6 +448,15 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, Ac
         super.onPause()
         unbindService(this)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (mediaPlayer != null) {
+            mediaPlayer.release()
+
+        }
+    }
+
 }
 
 

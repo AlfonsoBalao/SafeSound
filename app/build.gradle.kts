@@ -18,8 +18,11 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas.toString()")
+        }
+
     }
 
     buildTypes {
@@ -34,6 +37,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+
     }
     kotlinOptions {
         jvmTarget = "1.8"
@@ -45,8 +49,6 @@ android {
 }
 
 dependencies {
-
-
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -70,6 +72,4 @@ dependencies {
     implementation(libs.room.ktx)
     implementation (libs.gson)
     debugImplementation (libs.leakcanary.android)
-
-
 }

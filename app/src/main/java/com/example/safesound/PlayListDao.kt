@@ -9,7 +9,7 @@ import androidx.room.Update
 @Dao
 interface PlayListDao {
     @Insert
-    suspend fun insertPlaylist(playlist: PlayListEntity)
+    suspend fun insertPlaylist(playlist: PlayListEntity): Long
 
     @Query("SELECT * FROM playlist")
     suspend fun getAllPlaylists(): List<PlayListEntity>
