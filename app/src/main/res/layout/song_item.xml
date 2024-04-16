@@ -12,7 +12,7 @@
         android:layout_weight="1"
         android:textColor="@color/white"
         android:text="Título Canción"
-        android:textSize="18sp"/>
+        android:textSize="16sp"/>
 
     <TextView
         android:id="@+id/artist"
@@ -20,6 +20,6 @@
         android:layout_height="wrap_content"
         android:textColor="@color/white"
         android:text="Artista"
-        android:textSize="16sp"/>
+        android:textSize="12sp"/>
 
 </LinearLayout>

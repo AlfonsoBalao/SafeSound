@@ -217,8 +217,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, Ac
 
     private fun playThreadBtn() {
         playThread = Thread {
-            // En Kotlin, no es necesario llamar a super.run() ya que estamos
-            // definiendo el comportamiento del hilo directamente.
+
 
             playPauseBtn.setOnClickListener {
                 playPauseBtnClicked()
