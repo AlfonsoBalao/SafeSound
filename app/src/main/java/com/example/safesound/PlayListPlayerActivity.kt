@@ -38,6 +38,11 @@ class PlayListPlayerActivity : AppCompatActivity() {
     private lateinit var seekBar: SeekBar
     private lateinit var playedDuration: TextView
     private lateinit var totalDuration: TextView
+    private lateinit var repeatBtn: ImageView
+    private lateinit var shuffleBtn: ImageView
+    var shuffling: Boolean = false;
+    var repeating: Boolean = false;
+
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -141,12 +146,26 @@ class PlayListPlayerActivity : AppCompatActivity() {
             musicService?.previousSong()
         }
 
-        findViewById<ImageView>(R.id.shuffle).setOnClickListener {
-            musicService?.isShuffling = !(musicService?.isShuffling ?: false)
+        shuffleBtn = findViewById(R.id.shuffle)
+        shuffleBtn.setOnClickListener {
+            if (shuffling) {
+                shuffling = false
+                shuffleBtn.setImageResource(R.drawable.ic_shuffle_off)
+            } else {
+                shuffling = true
+                shuffleBtn.setImageResource(R.drawable.ic_shuffle)
+            }
         }
 
-        findViewById<ImageView>(R.id.id_repeat).setOnClickListener {
-            musicService?.isRepeating = !(musicService?.isRepeating ?: false)
+        repeatBtn = findViewById(R.id.id_repeat)
+        repeatBtn.setOnClickListener {
+            if (repeating) {
+                repeating = false
+                repeatBtn.setImageResource(R.drawable.ic_repeat_off)
+            } else {
+                repeating = true
+                repeatBtn.setImageResource(R.drawable.ic_repeat_on)
+            }
         }
 
         updatePlaylistDetails() // -> interfaz de usuario con los datos de la lista de reproducción
@@ -327,6 +346,7 @@ class PlayListPlayerActivity : AppCompatActivity() {
                 isBound = false
             }
             unregisterReceiver(playbackStateReceiver)
+
         }
 
         private fun configureSeekBar() {

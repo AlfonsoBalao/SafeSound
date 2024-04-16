@@ -102,6 +102,8 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         playSong(position)
     }
 
+
+
     fun previousSong() {
         if (songsList.isEmpty()) {
             Log.e("MusicService", "La lista de canciones está vacía")
@@ -125,9 +127,15 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     fun getDuration(): Int = mediaPlayer?.duration ?: 0
 
     override fun onDestroy() {
-        mediaPlayer?.release()
-        mediaPlayer = null
         super.onDestroy()
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                it.stop()
+            }
+            it.release()
+        }
+        mediaPlayer = null
+
     }
 
     fun seekTo(progress: Int) {
