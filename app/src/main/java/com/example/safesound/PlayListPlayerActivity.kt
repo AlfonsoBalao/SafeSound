@@ -25,9 +25,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.ArrayList
+
+
 
 class PlayListPlayerActivity : AppCompatActivity() {
 
@@ -335,6 +338,10 @@ class PlayListPlayerActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        val filter = IntentFilter().apply {
+            addAction("com.example.safesound.PLAYBACK_STATE_CHANGED")
+        }
+        registerReceiver(playbackStateReceiver, filter)
         if (isBound && musicService?.isPlaying() == true) {
             startUpdatingSeekBar()
         }
@@ -382,6 +389,7 @@ class PlayListPlayerActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         stopUpdatingSeekBar()
+        unregisterReceiver(playbackStateReceiver)
     }
 
     private fun startUpdatingSeekBar() {
@@ -401,20 +409,18 @@ class PlayListPlayerActivity : AppCompatActivity() {
             this.totalDuration.text = formatDuration(totalDuration)
             playedDuration.text = formatDuration(currentPosition)
 
-            Log.d("MusicService", "UpdateSeekBar -> Posición actual: $currentPosition")
-            Log.d("MusicService", "UpdateSeekBar -> Duración total: $totalDuration")
+            //Log.d("MusicService", "UpdateSeekBar -> Posición actual: $currentPosition")
+            //Log.d("MusicService", "UpdateSeekBar -> Duración total: $totalDuration")
         }
     }
 
     private val updateSeekBarTask = object : Runnable {
 
         override fun run() {
-            Log.d("SeekBar", "seekBar: se ha entrado en UpdateSeekBarTask")
+            //Log.d("SeekBar", "seekBar: se ha entrado en UpdateSeekBarTask")
             if (isBound && musicService?.isPlaying() == true) {
                 val currentPosition = musicService?.getCurrentPosition() ?: 0
                 val totalDuration = musicService?.getDuration() ?: 0
-
-                Log.d("SeekBar", "Current position: $currentPosition, Total duration: $totalDuration")
 
                 seekBar.max = totalDuration
                 seekBar.progress = currentPosition
@@ -422,7 +428,7 @@ class PlayListPlayerActivity : AppCompatActivity() {
                 playedDuration.text = formatDuration(currentPosition)
                 handler.postDelayed(this, 1000)
             } else {
-                Log.d("PlayListPlayerActivity", "UpdateSeekBarTask: MediaPlayer no funciona o no está enlazado.")
+                //Log.d("PlayListPlayerActivity", "UpdateSeekBarTask: MediaPlayer no funciona o no está enlazado.")
                 handler.removeCallbacks(this)
             }
         }
@@ -433,6 +439,11 @@ class PlayListPlayerActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 "com.example.safesound.PLAYBACK_STATE_CHANGED" -> {
+                    val coverArtPath = intent.getStringExtra("coverArtPath" ?: "")
+                    Log.d("PlayListPlayerActivity", "Ruta de carátula recibida: $coverArtPath")
+                    if (coverArtPath != null) {
+                        updateCoverArt(coverArtPath ?: "")
+                    }
                     updateSeekBar()
                 }
                 "com.example.safesound.MEDIAPLAYER_READY" -> {
@@ -445,4 +456,22 @@ class PlayListPlayerActivity : AppCompatActivity() {
             }
         }
     }
+
+
+    fun updateCoverArt(imagePath: String) {
+        Log.d("PlayListPlayerActivity", "Actualizando portada con ruta: $imagePath")
+        val imageView = findViewById<ImageView>(R.id.cover_art)
+        if (imagePath.isNotEmpty()) {
+            Glide.with(this)
+                .load(imagePath)
+                .signature(ObjectKey(System.currentTimeMillis()))
+                .error(R.drawable.null_cover)
+                .into(imageView)
+        } else {
+            Glide.with(this)
+                .load(R.drawable.null_cover)
+                .into(imageView)
+        }
+    }
+
 }

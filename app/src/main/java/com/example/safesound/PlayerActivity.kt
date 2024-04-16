@@ -350,13 +350,12 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, Ac
             val total_duration = songsList[position].duration.toInt() / 1000
             totalDuration.text = formattedTime(total_duration)
             val coverArtBytes = retriever.embeddedPicture
-            lateinit var bitmap: Bitmap
 
-            if (coverArtBytes != null) {
-                bitmap = BitmapFactory.decodeByteArray(coverArtBytes, 0, coverArtBytes.size)
+            var bitmap: Bitmap = if (coverArtBytes != null) {
+                BitmapFactory.decodeByteArray(coverArtBytes, 0, coverArtBytes.size)
             } else {
-                // usa el archivo null_cover si no hay metadatos de imagen de portada
-                bitmap = BitmapFactory.decodeResource(resources, R.drawable.null_cover)
+                // usaremos el archivo null_cover si no hay metadatos de imagen de portada
+                BitmapFactory.decodeResource(resources, R.drawable.null_cover)
             }
 
             // animación exista en metadatos una imagen o sea la del archivo null_cover
