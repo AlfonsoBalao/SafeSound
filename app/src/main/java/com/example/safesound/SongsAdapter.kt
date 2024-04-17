@@ -12,14 +12,18 @@ class SongsAdapter(
     private val onSongClicked: (Song) -> Unit)
     : RecyclerView.Adapter<SongsAdapter.SongViewHolder>() {
 
+    private var currentlyPlayingPosition: Int = -1
+
     class SongViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val titleTextView: TextView = view.findViewById(R.id.title)
         private val artistTextView: TextView = view.findViewById(R.id.artist)
+        private val playingIndicator: View = view.findViewById(R.id.playing_indicator)
 
-        fun bind(song: Song, onSongClicked: (Song) -> Unit) {
-            Log.d("SongsAdapter", "Binding song: ${song.title}")
+        fun bind(song: Song, isPlaying: Boolean, onSongClicked: (Song) -> Unit) {
+
             titleTextView.text = song.title
             artistTextView.text = song.artist
+            playingIndicator.visibility = if (isPlaying) View.VISIBLE else View.GONE
             itemView.setOnClickListener { onSongClicked(song) }
         }
     }
@@ -30,7 +34,9 @@ class SongsAdapter(
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
-        holder.bind(songs[position], onSongClicked)
+        val isPlaying = position == currentlyPlayingPosition
+        holder.bind(songs[position], isPlaying, onSongClicked)
+
     }
 
     override fun getItemCount() = songs.size
@@ -40,6 +46,16 @@ class SongsAdapter(
         (songs as MutableList<Song>).addAll(newSongs)
         notifyDataSetChanged()
     }
+
+    fun setCurrentPlayingPosition(position: Int) {
+        val previousPosition = currentlyPlayingPosition
+        if (position != previousPosition) {
+            currentlyPlayingPosition = position
+            notifyItemChanged(previousPosition)
+            notifyItemChanged(position)
+        }
+
 }
+    }
 
 

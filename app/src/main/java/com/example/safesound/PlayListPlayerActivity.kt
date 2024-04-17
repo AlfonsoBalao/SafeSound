@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -17,6 +18,7 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.TimeUtils.formatDuration
 import androidx.core.view.ViewCompat
@@ -45,6 +47,8 @@ class PlayListPlayerActivity : AppCompatActivity() {
     private lateinit var shuffleBtn: ImageView
     var shuffling: Boolean = false;
     var repeating: Boolean = false;
+    private var isReceiverRegistered = false
+
 
 
     private val handler = Handler(Looper.getMainLooper())
@@ -61,6 +65,16 @@ class PlayListPlayerActivity : AppCompatActivity() {
             musicService = binder.getService()
             isBound = true
 
+            musicService?.setShuffleState(shuffling)
+            musicService?.setRepeatState(repeating)
+
+
+            musicService?.setSongChangeCallback(object : MusicService.SongChangeCallback {
+                override fun onSongChanged(position: Int) {
+                    onSongPlay(position)
+                }
+            })
+
             binder.setOnPreparedListener {
                 updatePlayPauseButton()
                 if (musicService?.isPlaying() == true) {
@@ -73,13 +87,6 @@ class PlayListPlayerActivity : AppCompatActivity() {
 
         }
 
-           /* if (musicService?.isPlaying() == true) {
-                updateSeekBarWithCurrentSong()
-                playPauseBtn.setImageResource(R.drawable.ic_pause)
-                startUpdatingSeekBar()
-            } else {
-                playPauseBtn.setImageResource(R.drawable.ic_play)
-            }*/
             updatePlayPauseButton()
 
             val playlistId = intent.getLongExtra("PLAYLIST_ID", -1L)
@@ -100,6 +107,7 @@ class PlayListPlayerActivity : AppCompatActivity() {
             }
         }  override fun onServiceDisconnected(arg0: ComponentName) {
             isBound = false
+            musicService = null;
             updatePlayPauseButton()
         }
     }
@@ -109,28 +117,29 @@ class PlayListPlayerActivity : AppCompatActivity() {
             val currentDuration = musicService?.getDuration() ?: 0
             seekBar.max = currentDuration
             totalDuration.text = formatDuration(currentDuration)
-            handler.post(updateSeekBarTask)  // Asegura que el task se añade después de que el servicio esté vinculado
+            handler.post(updateSeekBarTask)
         }}
     /*********************************************************************************/
 
 
 
     /*********************************** ON CREATE ***********************************/
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val filter = IntentFilter()
+     /*   val filter = IntentFilter()
         filter.addAction("com.example.safesound.PLAYBACK_STATE_CHANGED")
         filter.addAction("com.example.safesound.MEDIAPLAYER_READY")
-        registerReceiver(playbackStateReceiver, filter)
+        registerReceiver(playbackStateReceiver, filter, RECEIVER_NOT_EXPORTED)*/
 
 
         enableEdgeToEdge()
 
         setContentView(R.layout.activity_play_list_player)
-        seekBar = findViewById<SeekBar>(R.id.seekBar)
-        playedDuration = findViewById<TextView>(R.id.playedDuration)
-        totalDuration = findViewById<TextView>(R.id.totalDuration)
+        seekBar = findViewById(R.id.seekBar)
+        playedDuration = findViewById(R.id.playedDuration)
+        totalDuration = findViewById(R.id.totalDuration)
 
         playPauseBtn = findViewById<ImageView>(R.id.play_pause).apply {
             setOnClickListener {
@@ -139,6 +148,9 @@ class PlayListPlayerActivity : AppCompatActivity() {
         }
         configureSeekBar()
 
+        //backBtn
+        val backBtn = findViewById<ImageView>(R.id.back_btn)
+        backBtn.setOnClickListener { onBackPressed() }
 
 
         findViewById<ImageView>(R.id.id_next).setOnClickListener {
@@ -151,24 +163,19 @@ class PlayListPlayerActivity : AppCompatActivity() {
 
         shuffleBtn = findViewById(R.id.shuffle)
         shuffleBtn.setOnClickListener {
-            if (shuffling) {
-                shuffling = false
-                shuffleBtn.setImageResource(R.drawable.ic_shuffle_off)
-            } else {
-                shuffling = true
-                shuffleBtn.setImageResource(R.drawable.ic_shuffle)
-            }
+            shuffling = !shuffling
+            shuffleBtn.setImageResource(if (shuffling) R.drawable.ic_shuffle else R.drawable.ic_shuffle_off)
+            Log.d("Shuffle State", "Shuffling ahora está en $shuffling")
+            musicService?.setShuffleState(shuffling)
         }
 
         repeatBtn = findViewById(R.id.id_repeat)
         repeatBtn.setOnClickListener {
-            if (repeating) {
-                repeating = false
-                repeatBtn.setImageResource(R.drawable.ic_repeat_off)
-            } else {
-                repeating = true
-                repeatBtn.setImageResource(R.drawable.ic_repeat_on)
-            }
+            repeating = !repeating
+            repeatBtn.setImageResource(if (repeating)R.drawable.ic_repeat_on else R.drawable.ic_repeat_off)
+            Log.d("Repeat State", "Repeating ahora está en $repeating")
+            musicService?.setRepeatState(repeating)
+
         }
 
         updatePlaylistDetails() // -> interfaz de usuario con los datos de la lista de reproducción
@@ -183,10 +190,11 @@ class PlayListPlayerActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         playlistAdapter = SongsAdapter(mutableListOf()) { song ->
+            val songIndex = playlistAdapter.songs.indexOf(song)
             if (isBound && musicService != null) {
-                val songIndex = playlistAdapter.songs.indexOf(song)
                 if (songIndex != -1) {
                     musicService?.playSong(songIndex)
+                    onSongPlay(songIndex)
                 } else {
                     Log.e("PlayListPlayerActivity", "Índice de canción no válido")
                 }
@@ -279,7 +287,7 @@ class PlayListPlayerActivity : AppCompatActivity() {
 
 
 
-        fun formatDuration(duration: Int): String {
+    fun formatDuration(duration: Int): String {
             val minutes = duration / 1000 / 60
             val seconds = (duration / 1000) % 60
             return String.format("%d:%02d", minutes, seconds)
@@ -287,7 +295,7 @@ class PlayListPlayerActivity : AppCompatActivity() {
 
 
 
-        private fun updatePlaylistDetails() {
+    private fun updatePlaylistDetails() {
             val playlistId = intent.getLongExtra("PLAYLIST_ID", -1L)
             val playlistName = intent.getStringExtra("PLAYLIST_NAME")
             findViewById<TextView>(R.id.list_name).text = "Reproduciendo lista: $playlistName"
@@ -295,17 +303,39 @@ class PlayListPlayerActivity : AppCompatActivity() {
 
 
 
-        override fun onStart() {
-            super.onStart()
-            Intent(this, MusicService::class.java).also { intent ->
-                bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    override fun onStart() {
+        super.onStart()
+        Intent(this, MusicService::class.java).also { intent ->
+            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+        }
+                if (!isReceiverRegistered) {
+            val filter = IntentFilter().apply {
+                addAction("com.example.safesound.PLAYBACK_STATE_CHANGED")
+                addAction("com.example.safesound.MEDIAPLAYER_READY")
             }
-            if (isBound && musicService?.isPlaying() == true) {
-                startUpdatingSeekBar()
-            }
+            registerReceiver(playbackStateReceiver, filter)
+            isReceiverRegistered = true
+                    Log.d("PlayListPlayerActivity", "Registrando receiver")
         }
 
-        private fun togglePlayPause() {
+        if (isBound && musicService?.isPlaying() == true) {
+            startUpdatingSeekBar()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isReceiverRegistered) {
+            unregisterReceiver(playbackStateReceiver)
+            isReceiverRegistered = false
+        }
+        if (isBound) {
+            unbindService(serviceConnection)
+            isBound = false
+        }
+    }
+
+    private fun togglePlayPause() {
             if (isBound && musicService != null) {
                 if (musicService?.isPlaying() == true) {
                     musicService?.pauseSong()
@@ -320,15 +350,7 @@ class PlayListPlayerActivity : AppCompatActivity() {
             }
         }
 
-        override fun onStop() {
-            super.onStop()
-            if (isBound) {
-                unbindService(serviceConnection)
-                isBound = false
-            }
-        }
-
-        private fun updatePlayPauseButton() {
+    private fun updatePlayPauseButton() {
             if (isBound && musicService?.isPlaying() == true) {
                 playPauseBtn.setImageResource(R.drawable.ic_pause)
             } else {
@@ -340,23 +362,26 @@ class PlayListPlayerActivity : AppCompatActivity() {
         super.onResume()
         val filter = IntentFilter().apply {
             addAction("com.example.safesound.PLAYBACK_STATE_CHANGED")
+            addAction("com.example.safesound.MEDIAPLAYER_READY")
         }
-        registerReceiver(playbackStateReceiver, filter)
+        registerReceiver(playbackStateReceiver, filter, RECEIVER_NOT_EXPORTED)
+        isReceiverRegistered = true
         if (isBound && musicService?.isPlaying() == true) {
             startUpdatingSeekBar()
         }
     }
-        override fun onDestroy() {
+    override fun onDestroy() {
             super.onDestroy()
             if (isBound) {
                 unbindService(serviceConnection)
                 isBound = false
+
             }
-            unregisterReceiver(playbackStateReceiver)
+        musicService = null
 
         }
 
-        private fun configureSeekBar() {
+    private fun configureSeekBar() {
             seekBar = findViewById<SeekBar>(R.id.seekBar)
             playedDuration = findViewById<TextView>(R.id.playedDuration)
             totalDuration = findViewById<TextView>(R.id.totalDuration)
@@ -388,9 +413,15 @@ class PlayListPlayerActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+
+        if (isReceiverRegistered) {
+            unregisterReceiver(playbackStateReceiver)
+            isReceiverRegistered = false
+        }
+
         stopUpdatingSeekBar()
-        unregisterReceiver(playbackStateReceiver)
     }
+
 
     private fun startUpdatingSeekBar() {
 
@@ -457,7 +488,6 @@ class PlayListPlayerActivity : AppCompatActivity() {
         }
     }
 
-
     fun updateCoverArt(imagePath: String) {
         Log.d("PlayListPlayerActivity", "Actualizando portada con ruta: $imagePath")
         val imageView = findViewById<ImageView>(R.id.cover_art)
@@ -472,6 +502,17 @@ class PlayListPlayerActivity : AppCompatActivity() {
                 .load(R.drawable.null_cover)
                 .into(imageView)
         }
+    }
+
+    fun onSongPlay(position: Int) {
+        playlistAdapter.setCurrentPlayingPosition(position)
+
+        playlistAdapter.notifyDataSetChanged()
+    }
+
+
+    override fun onBackPressed() {
+        super.onBackPressed()
     }
 
 }

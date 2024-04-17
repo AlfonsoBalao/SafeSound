@@ -14,6 +14,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import java.io.File
 import java.io.FileOutputStream
+//import kotlin.coroutines
 
 class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
 
@@ -113,13 +114,17 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             Log.e("MusicService", "La lista de canciones está vacía")
             return
         }
-        position = if (isShuffling) {
-            randomizer(songsList.size - 1)
-        } else {
-            (position + 1) % songsList.size
+        position = when {
+            isRepeating -> position
+            isShuffling -> randomizer(songsList.size - 1)
+            else -> (position + 1) % songsList.size
         }
+
         playSong(position)
+        songChangeCallback?.onSongChanged(position)
     }
+
+
 
 
 
@@ -130,6 +135,8 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         }
         position = if (position - 1 < 0) songsList.size - 1 else position - 1
         playSong(position)
+        songChangeCallback?.onSongChanged(position)
+
     }
 
 
@@ -177,7 +184,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                 FileOutputStream(imageFile).use { fos ->
                     fos.write(artBytes)
                 }
-                Log.d("MusicService", "Cover art created at: ${imageFile.absolutePath}")
+
                 return imageFile.absolutePath
             }
         } catch (e: Exception) {
@@ -187,6 +194,28 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             retriever.release()
         }
         return ""
+    }
+
+    interface SongChangeCallback {
+        fun onSongChanged(position: Int)
+    }
+
+    private var songChangeCallback: SongChangeCallback? = null
+
+    fun setSongChangeCallback(callback: SongChangeCallback) {
+        this.songChangeCallback = callback
+    }
+
+
+    fun setShuffleState(isShuffle: Boolean) {
+        isShuffling = isShuffle
+        Log.d("MusicService", "Modo shuffle establecido en $isShuffling")
+    }
+
+
+    fun setRepeatState(isRepeat: Boolean) {
+        isRepeating = isRepeat
+        Log.d("MusicService", "Modo repeat establecido en $isRepeating")
     }
 
 }

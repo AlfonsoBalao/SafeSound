@@ -82,11 +82,11 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, Ac
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // Código que se ejecuta cuando el usuario comienza a tocar el SeekBar.
+
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // Código que se ejecuta cuando el usuario deja de tocar el SeekBar.
+
             }
         })
         shuffleBtn.setOnClickListener {

@@ -37,13 +37,6 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <LinearLayout
-            android:id="@+id/playing_indicator"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/neon_border"
-            android:orientation="horizontal" />
-
 
     </RelativeLayout>
 
