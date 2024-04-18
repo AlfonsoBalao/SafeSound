@@ -14,6 +14,8 @@ interface SongDao {
     @Insert
     suspend fun insertPlaylistSong(playlistSong: PlaylistSong)
 
+    @Update
+    suspend fun updateSong(song: Song)
 
     @Query("SELECT * FROM songs")
     suspend fun getAllSongs(): List<Song>

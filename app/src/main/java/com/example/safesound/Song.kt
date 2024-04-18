@@ -11,10 +11,10 @@ data class Song(
     val artist: String,
     val album: String,
     val path: String,
-    val duration: Int, // Duración en segundos
-    val year: String, // Año de lanzamiento
-    val albumCoverUrl: String, // URL de la portada del álbum
-    @ColumnInfo(typeAffinity = ColumnInfo.TEXT) // Asegura que se maneje como texto largo
-    val lyrics: String, // Letra de la canción
+    val duration: Int, //-> duración en segundos
+    val year: String, //-> año de lanzamiento
+    val albumCoverUrl: String, //-> URL de la portada del álbum
+    @ColumnInfo(typeAffinity = ColumnInfo.TEXT)
+    val lyrics: String, // -> letra de la canción
 )
 

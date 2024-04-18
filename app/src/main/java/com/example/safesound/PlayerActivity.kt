@@ -21,14 +21,25 @@ import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
+import com.example.safesound.models.LyricsApiService
+import com.example.safesound.models.LyricsResponse
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import kotlin.random.Random
-
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, ActionPlaying, ServiceConnection {
 
@@ -71,6 +82,16 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, Ac
 
         getIntentMethod()
 
+        val lyricsButton: FloatingActionButton = findViewById(R.id.fab_show_lyrics)
+        lyricsButton.setOnClickListener {
+            val currentSong = songsList[position]
+            // Usar lifecycleScope para iniciar una coroutina
+            lifecycleScope.launch {
+                fetchAndDisplayLyrics(currentSong.artist, currentSong.title)
+            }
+        }
+
+
         songName.setText(songsList[position].title)
         artistName.setText(songsList[position].artist)
         mediaPlayer.setOnCompletionListener(this)
@@ -81,13 +102,9 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, Ac
                 }
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
         shuffleBtn.setOnClickListener {
             if (shuffling) {
@@ -454,6 +471,62 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, Ac
 
         }
     }
+
+
+    /*************** RETROFIT API CALL **************/
+
+    private suspend fun fetchAndDisplayLyrics(artist: String, title: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                val response = RetrofitClient.service.getLyrics(artist, title)
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        val lyrics = response.body()?.lyrics ?: "Letras no disponibles"
+                        displayLyrics(lyrics)
+                    } else {
+                        Toast.makeText(applicationContext, "Error al obtener las letras", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(applicationContext, "Error en la red", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+
+    private fun displayLyrics(lyrics: String) {
+        // CÓMO SE MUESTRAN LOS LYRICS,AQUI
+        AlertDialog.Builder(this)
+            .setTitle("Letras")
+            .setMessage(lyrics)
+            .setPositiveButton("Cerrar", null)
+            .show()
+    }
+
+    /*********** RETROFIT API CALL TERMINADA ***********/
+
+
+
+    /*************** RETROFIT CONFIGURACION **************/
+
+    object RetrofitClient {
+        private const val BASE_URL = "https://api.lyrics.ovh/"
+
+        val service: LyricsApiService by lazy {
+            Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(LyricsApiService::class.java)
+        }
+    }
+
+
+
+
+    /*********** RETROFIT CONFIGURACION FIN ***********/
 
 }
 
