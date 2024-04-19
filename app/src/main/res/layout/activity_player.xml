@@ -107,7 +107,8 @@
         android:src="@drawable/ic_lyrics"
         app:backgroundTint="@android:color/transparent"
         app:maxImageSize="24dp"
-        app:tint="@color/white" />
+        app:tint="@color/white"
+        android:contentDescription="play and pause button" />
 
     <RelativeLayout
         android:id="@+id/relative_layout_bottom"

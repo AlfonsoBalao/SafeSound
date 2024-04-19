@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+    <Transition
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@+id/start"
+        motion:duration="3600" motion:motionInterpolator="cubic(0.05, 0, 0.9, 1)">
+        <KeyFrameSet>
+
+            <!---Letras-->
+            <KeyAttribute
+                android:alpha="0.0"
+                motion:framePosition="0"
+                motion:motionTarget="@id/letras" />
+            <KeyAttribute
+                android:alpha="0.0"
+                motion:framePosition="20"
+                motion:motionTarget="@id/letras" />
+            <KeyAttribute
+                android:alpha="1.0"
+                motion:framePosition="85"
+                motion:motionTarget="@id/letras" />
+        </KeyFrameSet>
+
+        <!---Polígono 1-->
+        <KeyFrameSet>
+            <KeyAttribute
+                motion:motionTarget="@id/polig1"
+                motion:framePosition="0"
+                android:alpha="0.0" />
+
+            <KeyAttribute
+                motion:motionTarget="@id/polig1"
+                motion:framePosition="50"
+                android:alpha="1.0" />
+
+
+            <KeyAttribute
+                motion:motionTarget="@id/polig1"
+                motion:framePosition="0"
+                android:rotation="20" />
+
+            <KeyAttribute
+                motion:motionTarget="@id/polig1"
+                motion:framePosition="50"
+                android:rotation="0" />
+
+
+          <!---Polígono 2-->
+            <KeyAttribute
+                motion:motionTarget="@id/polig2"
+                motion:framePosition="0"
+                android:alpha="0.0" />
+
+            <KeyAttribute
+                motion:motionTarget="@id/polig2"
+                motion:framePosition="50"
+                android:alpha="1.0" />
+
+
+            <KeyAttribute
+                motion:motionTarget="@id/polig2"
+                motion:framePosition="0"
+                android:rotation="40" />
+
+            <KeyAttribute
+                motion:motionTarget="@id/polig2"
+                motion:framePosition="50"
+                android:rotation="0" />
+
+            <!---Polígono 3-->
+            <KeyAttribute
+                motion:motionTarget="@id/polig3"
+                motion:framePosition="0"
+                android:alpha="0.0" />
+
+            <KeyAttribute
+                motion:motionTarget="@id/polig3"
+                motion:framePosition="50"
+                android:alpha="1.0" />
+
+
+            <KeyAttribute
+                motion:motionTarget="@id/polig3"
+                motion:framePosition="0"
+                android:rotation="-20" />
+
+            <KeyAttribute
+                motion:motionTarget="@id/polig3"
+                motion:framePosition="50"
+                android:rotation="0" />
+
+            <!---Sunset-->
+
+            <KeyAttribute
+                motion:motionTarget="@id/sunset"
+                motion:framePosition="0"
+                android:alpha="0.0" />
+
+            <KeyAttribute
+                motion:motionTarget="@id/sunset"
+                motion:framePosition="40"
+                android:alpha="0.0" />
+
+            <KeyAttribute
+                motion:motionTarget="@id/sunset"
+                motion:framePosition="60"
+                android:alpha="1.0" />
+
+
+            <KeyAttribute
+                motion:motionTarget="@id/sunset"
+                motion:framePosition="0"
+                android:rotation="-20" />
+
+            <KeyAttribute
+                motion:motionTarget="@id/sunset"
+                motion:framePosition="80"
+                android:rotation="0" />
+
+            <!---Palmeras-->
+
+            <KeyAttribute
+                motion:motionTarget="@id/palmeras"
+                motion:framePosition="0"
+                android:alpha="0.0" />
+            <KeyAttribute
+                motion:motionTarget="@id/palmeras"
+                motion:framePosition="40"
+                android:alpha="0.0" />
+
+            <KeyAttribute
+                motion:motionTarget="@id/palmeras"
+                motion:framePosition="70"
+                android:alpha="1.0" />
+
+        </KeyFrameSet>
+
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@+id/letras"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+
+        <Constraint
+            android:id="@+id/palmeras"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+
+        <Constraint
+            android:id="@+id/polig1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+
+        <Constraint
+            android:id="@+id/polig2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent" />
+
+        <Constraint
+            android:id="@+id/polig3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent" />
+        <Constraint
+            android:id="@+id/sunset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent" />
+    </ConstraintSet>
+
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@+id/letras"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent" />
+
+        <Constraint
+            android:id="@+id/palmeras"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent" />
+
+        <Constraint
+            android:id="@+id/polig1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent" />
+
+        <Constraint
+            android:id="@+id/polig2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent" />
+
+        <Constraint
+            android:id="@+id/polig3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent" />
+
+        <Constraint
+            android:id="@+id/sunset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent" />
+
+    </ConstraintSet>
+</MotionScene>
