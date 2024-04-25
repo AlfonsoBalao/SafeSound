@@ -305,23 +305,28 @@ class PlayListPlayerActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        // enlace con el MusicService
         Intent(this, MusicService::class.java).also { intent ->
             bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
         }
-                if (!isReceiverRegistered) {
+
+
+        if (!isReceiverRegistered) {
             val filter = IntentFilter().apply {
                 addAction("com.example.safesound.PLAYBACK_STATE_CHANGED")
                 addAction("com.example.safesound.MEDIAPLAYER_READY")
             }
             registerReceiver(playbackStateReceiver, filter)
             isReceiverRegistered = true
-                    Log.d("PlayListPlayerActivity", "Registrando receiver")
+            Log.d("PlayListPlayerActivity", "Registrando receiver")
         }
+
 
         if (isBound && musicService?.isPlaying() == true) {
             startUpdatingSeekBar()
         }
     }
+
 
     override fun onStop() {
         super.onStop()

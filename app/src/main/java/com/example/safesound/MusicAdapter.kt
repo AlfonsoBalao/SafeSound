@@ -47,14 +47,14 @@ class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<
         }
         holder.menuMore.setOnClickListener { view ->
             val popupMenu = PopupMenu(mContext, view)
-            popupMenu.inflate(R.menu.popup) // Simplificación del inflado del menú
+            popupMenu.inflate(R.menu.popup)
             popupMenu.show()
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.deleteFile -> {
                         Toast.makeText(mContext, "Clicado Borrar", Toast.LENGTH_SHORT).show()
                         deleteFile(position, view)
-                        true // Maneja el evento del clic
+                        true // -> maneja el evento del clic
                     }
 
                     else -> false

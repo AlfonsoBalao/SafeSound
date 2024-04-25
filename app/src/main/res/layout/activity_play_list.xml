@@ -1,30 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center_horizontal"
     tools:context=".PlayListActivity">
 
-    <Button
-        android:id="@+id/btnMyLists"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Mis listas"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/design_default_color_primary"
-        android:textColor="@android:color/white" />
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/back_list"
+        android:scaleType="centerCrop"
+        android:layout_gravity="center"/>
 
-    <Button
-        android:id="@+id/btnCreateList"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Crear lista"
-        android:backgroundTint="@color/design_default_color_primary"
-        android:textColor="@android:color/white" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"/>
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btnMyLists"
+            style="@style/SynthwaveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Mis listas"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp" />
+
+        <Button
+            android:id="@+id/btnCreateList"
+            style="@style/SynthwaveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crear lista"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp" />
+    </LinearLayout>
+</FrameLayout>

@@ -10,6 +10,17 @@
     </style>
 
 
+        <style name="SynthwaveButton" parent="Widget.AppCompat.Button">
+            <item name="android:textSize">18sp</item>
+            <item name="android:textStyle">bold</item>
+            <item name="android:textColor">@android:color/white</item>
+            <item name="android:background">@drawable/synthwave_button</item>
+            <item name="android:shadowColor">#55000000</item>
+            <item name="android:shadowDx">4</item>
+            <item name="android:shadowDy">4</item>
+            <item name="android:shadowRadius">5</item>
+        </style>
+
 
 
 </resources>

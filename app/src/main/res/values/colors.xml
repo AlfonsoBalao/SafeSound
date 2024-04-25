@@ -31,5 +31,9 @@
     <color name="inactive">#9E9E9E</color>
     <color name="active">#FF5722</color>
     <color name="shadow">#40000000</color>
+    <color name="synthwave_dark">#ff0050</color>
+    <color name="synthwave_pink">#ff0077</color>
+    <color name="synthwave_blue">#00c0ff</color>
+    <color name="synthwave_purple">#7200ff</color>
     <color name="ic_launcher_background">#15112A</color>
 </resources>

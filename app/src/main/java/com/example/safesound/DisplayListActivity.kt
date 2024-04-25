@@ -56,7 +56,7 @@ class DisplayListActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val db = AppDatabase.getInstance(applicationContext)
             db.playlistDao().deletePlaylist(playlist.id)
-            loadPlaylists()  // Recargar las listas después de borrar
+            loadPlaylists()  // -> recargar las listas después de borrar
         }
     }
 

@@ -39,25 +39,6 @@ class SongsFragment : Fragment(), MainActivity.MusicUpdateListener {
 
     }
 
-   /* override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflar el layout para este fragmento
-        val view = inflater.inflate(R.layout.fragment_songs, container, false)
-        recyclerView = view.findViewById(R.id.recyclerView)
-        recyclerView.setHasFixedSize(true) //El tamaño del elemento recyclerView no cambiará
-
-        if (((activity as? MainActivity)?.getMusicFiles()?.size ?: 0) >= 1) {
-            musicAdapter =
-                MusicAdapter(requireContext(), (activity as MainActivity).getMusicFiles())
-            recyclerView.adapter = musicAdapter
-            recyclerView.layoutManager =
-                LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-        }
-        return view
-    }
-*/
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

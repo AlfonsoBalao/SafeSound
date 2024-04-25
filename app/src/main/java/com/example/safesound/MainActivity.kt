@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
         }
     }
+
     /* *********************************************************************** */
 
 
@@ -103,8 +104,6 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
         requestMultiplePermissionsLauncher.launch(permisos)
-        //Fin de la solicitud de permisos de la aplicación
-
 
     }
 
@@ -192,7 +191,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     /*  Función encargada de buscar los archivos de audio en el dispositivo
      y devolver una lista de objetos MusicFiles que representan tales archivos */
 
-    fun getAllAudio(context: Context, sortOrder: String? = null): ArrayList<MusicFiles> {
+    private fun getAllAudio(context: Context, sortOrder: String? = null): ArrayList<MusicFiles> {
         val tempAudioList = ArrayList<MusicFiles>()
 
         val order = when (sortOrder) {
@@ -314,7 +313,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
 
 
-    fun loadSongsFromDevice(context: Context) {
+    private fun loadSongsFromDevice(context: Context) {
         val contentResolver = context.contentResolver
         val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val cursor = contentResolver.query(

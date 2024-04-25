@@ -36,10 +36,10 @@ class AlbumFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+
         val view = inflater.inflate(R.layout.fragment_album, container, false)
         recyclerView = view.findViewById(R.id.recyclerView)
-        recyclerView.setHasFixedSize(true) //el tamaño del recyclerView no cambiará
+        recyclerView.setHasFixedSize(true) //-> el tamaño del recyclerView no cambiará
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
         val uniqueAlbums = arguments?.getParcelableArrayList<MusicFiles>("uniqueAlbums")

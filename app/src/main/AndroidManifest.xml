@@ -30,21 +30,27 @@
         </activity>
         <activity
             android:name=".DisplayListActivity"
+            android:theme="@style/Base.Theme.SafeSound"
             android:exported="false" />
         <activity
             android:name=".CreatePlayListActivity"
+            android:theme="@style/Base.Theme.SafeSound"
             android:exported="false" />
         <activity
             android:name=".PlayListActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".PlayListPlayerActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".AlbumDetails"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".PlayerActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

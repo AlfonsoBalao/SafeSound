@@ -451,7 +451,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, Ac
         val myBinder: MusicService.MyBinder = service as MusicService.MyBinder
         musicService = myBinder.getService()
 
-        Toast.makeText(this, "Conectado " + musicService, Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "Conectado " + musicService, Toast.LENGTH_SHORT).show()
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
