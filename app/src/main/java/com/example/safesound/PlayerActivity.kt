@@ -1,6 +1,9 @@
 package com.example.safesound
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.GradientDrawable
@@ -9,6 +12,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.IBinder
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -17,16 +21,27 @@ import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
+import com.example.safesound.models.LyricsApiService
+import com.example.safesound.models.LyricsResponse
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import kotlin.random.Random
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-
-class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
+class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener, ActionPlaying, ServiceConnection {
 
     private lateinit var songName: TextView
     private lateinit var artistName: TextView
@@ -50,6 +65,8 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
     private lateinit var nextThread: Thread
     var shuffling: Boolean = false;
     var repeating: Boolean = false;
+    private var musicService: MusicService? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +82,16 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
 
         getIntentMethod()
 
+        val lyricsButton: FloatingActionButton = findViewById(R.id.fab_show_lyrics)
+        lyricsButton.setOnClickListener {
+            val currentSong = songsList[position]
+            // Usar lifecycleScope para iniciar una coroutina
+            lifecycleScope.launch {
+                fetchAndDisplayLyrics(currentSong.artist, currentSong.title)
+            }
+        }
+
+
         songName.setText(songsList[position].title)
         artistName.setText(songsList[position].artist)
         mediaPlayer.setOnCompletionListener(this)
@@ -75,13 +102,9 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
                 }
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // Código que se ejecuta cuando el usuario comienza a tocar el SeekBar.
-            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // Código que se ejecuta cuando el usuario deja de tocar el SeekBar.
-            }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
         shuffleBtn.setOnClickListener {
             if (shuffling) {
@@ -104,6 +127,9 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
     }
 
     override fun onResume() {
+        val intent: Intent = Intent(this, MusicService::class.java)
+        bindService(intent, this, Context.BIND_AUTO_CREATE)
+
         playThreadBtn()
         nextThreadBtn()
         prevThreadBtn()
@@ -123,8 +149,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         }
     }
 
-
-    private fun prevBtnClicked() {
+    override fun prevBtnClicked() {
         if (mediaPlayer.isPlaying) {
 
             mediaPlayer.stop()
@@ -172,7 +197,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         }
     }
 
-    private fun nextBtnClicked() {
+    override fun nextBtnClicked() {
         runOnUiThread {
             mediaPlayer.stop()
             mediaPlayer.release()
@@ -207,11 +232,9 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         mediaPlayer.start()
     }
 
-
     private fun playThreadBtn() {
         playThread = Thread {
-            // En Kotlin, no es necesario llamar a super.run() ya que estamos
-            // definiendo el comportamiento del hilo directamente.
+
 
             playPauseBtn.setOnClickListener {
                 playPauseBtnClicked()
@@ -220,7 +243,7 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         playThread.start()
     }
 
-    private fun playPauseBtnClicked() {
+    override fun playPauseBtnClicked() {
         if (mediaPlayer.isPlaying) {
 
             playPauseBtn.setImageResource(R.drawable.ic_play)
@@ -261,7 +284,6 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
             totalOut
         }
     }
-
 
     private fun getIntentMethod() {
         position = intent.getIntExtra("position", -1)
@@ -307,7 +329,6 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         }
     }
 
-
     override fun onStop() {
         super.onStop()
         handler.removeCallbacksAndMessages(null)
@@ -346,13 +367,12 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
             val total_duration = songsList[position].duration.toInt() / 1000
             totalDuration.text = formattedTime(total_duration)
             val coverArtBytes = retriever.embeddedPicture
-            lateinit var bitmap: Bitmap
 
-            if (coverArtBytes != null) {
-                bitmap = BitmapFactory.decodeByteArray(coverArtBytes, 0, coverArtBytes.size)
+            var bitmap: Bitmap = if (coverArtBytes != null) {
+                BitmapFactory.decodeByteArray(coverArtBytes, 0, coverArtBytes.size)
             } else {
-                // usa el archivo null_cover si no hay metadatos de imagen de portada
-                bitmap = BitmapFactory.decodeResource(resources, R.drawable.null_cover)
+                // usaremos el archivo null_cover si no hay metadatos de imagen de portada
+                BitmapFactory.decodeResource(resources, R.drawable.null_cover)
             }
 
             // animación exista en metadatos una imagen o sea la del archivo null_cover
@@ -426,6 +446,88 @@ class PlayerActivity : AppCompatActivity(), MediaPlayer.OnCompletionListener {
         return Random.nextInt(i + 1)
 
     }
+
+    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+        val myBinder: MusicService.MyBinder = service as MusicService.MyBinder
+        musicService = myBinder.getService()
+
+        //Toast.makeText(this, "Conectado " + musicService, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onServiceDisconnected(name: ComponentName?) {
+        musicService = null
+    }
+
+
+    override fun onPause(): Unit {
+        super.onPause()
+        unbindService(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (mediaPlayer != null) {
+            mediaPlayer.release()
+
+        }
+    }
+
+
+    /*************** RETROFIT API CALL **************/
+
+    private suspend fun fetchAndDisplayLyrics(artist: String, title: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                val response = RetrofitClient.service.getLyrics(artist, title)
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        val lyrics = response.body()?.lyrics ?: "Letras no disponibles"
+                        displayLyrics(lyrics)
+                    } else {
+                        Toast.makeText(applicationContext, "Error al obtener las letras", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(applicationContext, "Error en la red", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+
+    private fun displayLyrics(lyrics: String) {
+        // CÓMO SE MUESTRAN LOS LYRICS,AQUI
+        AlertDialog.Builder(this)
+            .setTitle("Letras")
+            .setMessage(lyrics)
+            .setPositiveButton("Cerrar", null)
+            .show()
+    }
+
+    /*********** RETROFIT API CALL TERMINADA ***********/
+
+
+
+    /*************** RETROFIT CONFIGURACION **************/
+
+    object RetrofitClient {
+        private const val BASE_URL = "https://api.lyrics.ovh/"
+
+        val service: LyricsApiService by lazy {
+            Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(LyricsApiService::class.java)
+        }
+    }
+
+
+
+
+    /*********** RETROFIT CONFIGURACION FIN ***********/
+
 }
 
 

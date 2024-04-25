@@ -36,9 +36,9 @@ class AlbumDetailsAdapter(
         }
         holder.itemView.setOnClickListener {
             val intent = Intent(mContext, PlayerActivity::class.java).apply {
-                putExtra("position", holder.adapterPosition) // manda la posición correcta
-                putExtra("sender", "albumDetailsAdapter") // identificador para saber desde dónde se inició
-                putParcelableArrayListExtra("albumFiles", albumFiles) // manda la lista de canciones
+                putExtra("position", holder.adapterPosition) // -> manda la posición correcta
+                putExtra("sender", "albumDetailsAdapter") // -> identificador para saber desde dónde se inició
+                putParcelableArrayListExtra("albumFiles", albumFiles) // -> manda la lista de canciones
             }
             mContext.startActivity(intent)
         }

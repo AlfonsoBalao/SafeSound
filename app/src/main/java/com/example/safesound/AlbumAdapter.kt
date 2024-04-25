@@ -23,7 +23,7 @@ class AlbumAdapter(
 
     override fun onBindViewHolder(holder: MyHolder, position: Int) {
         val album = uniqueAlbums[position]
-        holder.albumName.text = album.album // Usamos `album` directamente
+        holder.albumName.text = album.album //-> usamos `album` directamente
         val image: ByteArray? = MusicUtils.getAlbumArt(album.path) // `album.path` para obtener la imagen del álbum actual
         if (image != null) {
             Glide.with(mContext).asBitmap()
@@ -35,7 +35,7 @@ class AlbumAdapter(
                 .into(holder.albumImage)
         }
         holder.itemView.setOnClickListener { v ->
-            val albumSongs = allMusicFiles.filter { it.album == album.album } // Filtra todas las canciones del álbum seleccionado
+            val albumSongs = allMusicFiles.filter { it.album == album.album } // -> filtra todas las canciones del álbum seleccionado
             val intent = Intent(mContext, AlbumDetails::class.java).apply {
                 putExtra("albumName", album.album)
                 putParcelableArrayListExtra("albumSongs", ArrayList(albumSongs))
@@ -45,7 +45,7 @@ class AlbumAdapter(
     }
 
     override fun getItemCount(): Int {
-        return uniqueAlbums.size // Usamos `uniqueAlbums.size` para el recuento de ítems
+        return uniqueAlbums.size // -> usamos `uniqueAlbums.size` para el recuento de ítems
     }
 
     inner class MyHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-     <!--Base application theme.
+
     <style name="Theme.SafeSound" parent="Theme.AppCompat.Light.DarkActionBar">
-        &lt;!&ndash; Customize your theme here. &ndash;&gt;
+
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/accent</item>
     </style>
--->
+
+
+        <style name="SynthwaveButton" parent="Widget.AppCompat.Button">
+            <item name="android:textSize">18sp</item>
+            <item name="android:textStyle">bold</item>
+            <item name="android:textColor">@android:color/white</item>
+            <item name="android:background">@drawable/synthwave_button</item>
+            <item name="android:shadowColor">#55000000</item>
+            <item name="android:shadowDx">4</item>
+            <item name="android:shadowDy">4</item>
+            <item name="android:shadowRadius">5</item>
+        </style>
+
 
 
 </resources>

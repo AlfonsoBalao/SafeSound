@@ -26,6 +26,11 @@ import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.lifecycleScope
+import androidx.room.withTransaction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
@@ -64,6 +69,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
         }
     }
+
     /* *********************************************************************** */
 
 
@@ -98,8 +104,6 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
         requestMultiplePermissionsLauncher.launch(permisos)
-        //Fin de la solicitud de permisos de la aplicación
-
 
     }
 
@@ -187,7 +191,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     /*  Función encargada de buscar los archivos de audio en el dispositivo
      y devolver una lista de objetos MusicFiles que representan tales archivos */
 
-    fun getAllAudio(context: Context, sortOrder: String? = null): ArrayList<MusicFiles> {
+    private fun getAllAudio(context: Context, sortOrder: String? = null): ArrayList<MusicFiles> {
         val tempAudioList = ArrayList<MusicFiles>()
 
         val order = when (sortOrder) {
@@ -277,20 +281,96 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val sortingValue = when (item.itemId) {
-            R.id.by_name -> "sortByName"
-            R.id.by_date -> "sortByDate"
-            R.id.by_size -> "sortBySize"
-            else -> return super.onOptionsItemSelected(item)
+        when (item.itemId) {
+            R.id.by_name, R.id.by_date, R.id.by_size -> {
+                val sortingValue = when (item.itemId) {
+                    R.id.by_name -> "sortByName"
+                    R.id.by_date -> "sortByDate"
+                    R.id.by_size -> "sortBySize"
+                    else -> ""
+                }
+
+                val editor: SharedPreferences.Editor = getSharedPreferences(preferences, MODE_PRIVATE).edit()
+                editor.putString("sorting", sortingValue)
+                editor.apply()
+                updateSongListByOrder()
+                return true
+            }
+            R.id.list_icon -> {
+                lifecycleScope.launch {
+                    loadSongsFromDevice(this@MainActivity)
+                    // Una vez finalizada la carga, lanzar PlayListActivity
+                    withContext(Dispatchers.Main) {
+                        val intent = Intent(this@MainActivity, PlayListActivity::class.java)
+                        startActivity(intent)
+                    }
+                }
+                return true
+            }
         }
-
-        val editor: SharedPreferences.Editor = getSharedPreferences(preferences, MODE_PRIVATE).edit()
-        editor.putString("sorting", sortingValue)
-        editor.apply()
-        updateSongListByOrder()
-
-        return true
+        return super.onOptionsItemSelected(item)
     }
+
+
+
+    private fun loadSongsFromDevice(context: Context) {
+        val contentResolver = context.contentResolver
+        val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val cursor = contentResolver.query(
+            uri,
+            null,
+            MediaStore.Audio.Media.IS_MUSIC + " != 0",
+            null,
+            null
+        )
+
+        cursor?.use { cursorInstance ->
+            val songsToAdd = mutableListOf<Song>()
+            while (cursorInstance.moveToNext()) {
+                val title = cursorInstance.getString(cursorInstance.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
+                val artist = cursorInstance.getString(cursorInstance.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
+                val album = cursorInstance.getString(cursorInstance.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM))
+                val path = cursorInstance.getString(cursorInstance.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+                val duration = cursorInstance.getInt(cursorInstance.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
+
+                val song = Song(
+                    title = title,
+                    artist = artist,
+                    album = album,
+                    path = path,
+                    duration = duration,
+                    year = "",
+                    albumCoverUrl = "",
+                    lyrics = ""
+                )
+                songsToAdd.add(song)
+            }
+            Log.d("MainActivity", "Preparando ${songsToAdd.size} canciones para añadir a la base de datos.")
+            // Trabajar con la base de datos fuera del bloque cursor.use
+            lifecycleScope.launch(Dispatchers.IO) {
+                val db = AppDatabase.getInstance(context)
+                db.withTransaction {
+                    for (song in songsToAdd) {
+                        val songExists = db.songDao().isSongExists(song.title, song.artist, song.album)
+                        if (!songExists) {
+                            db.songDao().insertSong(song)
+                            Log.d("MainActivity", "Añadidas ${songsToAdd.size} canciones a la base de datos.")
+                        } else if (songExists){Log.d("MainActivity", "Las ${songsToAdd.size} canciones ya existían y no se han añadido.")}
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    val intent = Intent(context, PlayListActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    context.startActivity(intent)
+                }
+            }
+        } ?: Log.e("MainActivity", "Cursor nulo al cargar canciones desde el dispositivo")
+    }
+
+
+
+
+
 
     fun updateSongListByOrder() {
         val sharedPreferences = getSharedPreferences(preferences, Context.MODE_PRIVATE)
@@ -298,5 +378,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         val updatedMusicFiles = getAllAudio(this, sortOrder)
         songsFragment.onMusicListUpdated(updatedMusicFiles)
     }
+
+
 
 }

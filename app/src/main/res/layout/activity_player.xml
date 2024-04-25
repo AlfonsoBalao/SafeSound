@@ -22,6 +22,7 @@
             android:layout_height="30dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
+            android:visibility="gone"
             android:src="@drawable/ic_chevron_left" />
 
         <TextView
@@ -43,6 +44,7 @@
             android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:visibility="gone"
             android:src="@drawable/ic_menu" />
 
     </RelativeLayout>
@@ -97,6 +99,19 @@
         android:textColor="@color/white"
         android:textSize="18sp" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_show_lyrics"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/artist_name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_lyrics"
+        app:backgroundTint="@android:color/transparent"
+        app:maxImageSize="24dp"
+        app:tint="@color/white"
+        android:contentDescription="play and pause button" />
+
     <RelativeLayout
         android:id="@+id/relative_layout_bottom"
         android:layout_width="match_parent"
@@ -135,16 +150,16 @@
             android:focusable="true"
             android:src="@drawable/ic_play"
             app:backgroundTint="@color/white"
-            app:tint="@color/black"
+            app:fabCustomSize="48dp"
             app:maxImageSize="24dp"
-            app:fabCustomSize="48dp" />
+            app:tint="@color/black" />
 
         <ImageView
             android:id="@+id/id_next"
             android:layout_width="21dp"
             android:layout_height="21dp"
             android:layout_centerVertical="true"
-            android:layout_marginStart="32dp"
+            android:layout_marginStart="30dp"
             android:layout_toEndOf="@id/play_pause"
             android:src="@drawable/ic_skip_next" />
 
@@ -173,6 +188,7 @@
             android:layout_alignParentStart="true"
             android:layout_marginStart="10dp"
             android:text="1:28"
+
             android:textColor="@color/white" />
 
         <TextView
@@ -182,6 +198,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="10dp"
             android:text="4:35"
+
             android:textColor="@color/white" />
 
         <SeekBar
@@ -191,10 +208,12 @@
             android:layout_alignParentBottom="true"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:thumbTint="@color/white"
-            />
+            android:thumbTint="@color/white" />
+
 
     </RelativeLayout>
+
+
 
 
 </RelativeLayout>

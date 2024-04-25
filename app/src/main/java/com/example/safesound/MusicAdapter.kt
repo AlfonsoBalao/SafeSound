@@ -30,16 +30,12 @@ class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.fileName.text = mFiles[position].title
         val image: ByteArray? = MusicUtils.getAlbumArt(mFiles[position].path)
-        if (image != null){
+        if (image != null) {
             Glide.with(mContext).asBitmap()  // -> sintaxis propia de la librería Glide
-                .load(image)
-                .into(holder .albumArt)
-        }
-        else{
+                .load(image).into(holder.albumArt)
+        } else {
 
-            Glide.with(mContext)
-                .load(R.drawable.null_cover)
-                .into(holder.albumArt)
+            Glide.with(mContext).load(R.drawable.null_cover).into(holder.albumArt)
 
         }
         holder.itemView.setOnClickListener {
@@ -51,15 +47,16 @@ class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<
         }
         holder.menuMore.setOnClickListener { view ->
             val popupMenu = PopupMenu(mContext, view)
-            popupMenu.inflate(R.menu.popup) // Simplificación del inflado del menú
+            popupMenu.inflate(R.menu.popup)
             popupMenu.show()
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.deleteFile -> {
                         Toast.makeText(mContext, "Clicado Borrar", Toast.LENGTH_SHORT).show()
                         deleteFile(position, view)
-                        true // Maneja el evento del clic
+                        true // -> maneja el evento del clic
                     }
+
                     else -> false
                 }
             }
@@ -67,12 +64,14 @@ class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<
     }
 
     private fun deleteFile(position: Int, view: View) {
-        val contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mFiles[position].id.toLong())
+        val contentUri = ContentUris.withAppendedId(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mFiles[position].id.toLong()
+        )
         val deletedRows = mContext.contentResolver.delete(contentUri, null, null)
         if (deletedRows > 0) {
             val file: File = File(mFiles[position].path)
             val deleted: Boolean = file.delete();
-            if (deleted){
+            if (deleted) {
                 mContext.contentResolver.delete(contentUri, null, null)
                 mFiles.removeAt(position)
                 notifyItemRemoved(position)
@@ -103,6 +102,7 @@ class MusicAdapter(private val mContext: Context, private val mFiles: ArrayList<
     }
 
 }
+
 
 
 

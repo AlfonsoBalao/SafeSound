@@ -2,7 +2,8 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.androidApplication)
     id("kotlin-parcelize")
-
+    id("com.google.devtools.ksp") version "1.9.23-1.0.20"
+    id("kotlin-kapt")
 
 }
 
@@ -17,8 +18,11 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas.toString()")
+        }
+
     }
 
     buildTypes {
@@ -33,18 +37,18 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+
     }
     kotlinOptions {
         jvmTarget = "1.8"
     }
     buildFeatures {
         viewBinding= true
+        dataBinding= true
     }
 }
 
 dependencies {
-
-
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -54,11 +58,21 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation("androidx.palette:palette:1.0.0")
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.recyclerview.selection)
+    implementation(libs.palette)
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation (libs.gson)
+    implementation(libs.glide)
+    implementation (libs.room.runtime)
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    ksp(libs.room.compiler)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation (libs.kotlinx.coroutines.core)
+    implementation(libs.room.ktx)
+    debugImplementation (libs.leakcanary.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.glide)
-    /*debugImplementation ("com.squareup.leakcanary:leakcanary-android:2.13")*/
-
 }
